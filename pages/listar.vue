@@ -2,12 +2,14 @@
   <div class="container mx-auto p-7 m-10 rounded-md">
     <h2 class="text-center font-bold text-3xl">Lista de Músicas</h2>
 
-    <div v-if="musics && musics.length > 0" class="mt-5">
-      <div v-for="music in musics" :key="music.id" class="mb-5 p-3 bg-secondary rounded-md">
-        <h3 class="text-xl font-bold">{{ music.nome }}</h3>
-        <p class="text-gray-500">{{ music.nomeArtista }}</p>
-        <img :src="music.image_url" :alt="music.nome" class="w-50 h-40 object-cover mt-3 rounded-md">
-        <audio :src="music.url" controls class="mt-3 w-full"></audio>
+    <div v-if="musics && musics.length > 0" class="mt-5 flex flex-wrap justify-center">
+      <div v-for="music in musics" :key="music.id" class="m-3 p-3 bg-secondary w-1/3 rounded-md">
+        <div class="flex flex-col items-center">
+          <img :src="music.image_url" :alt="music.nome" class="h-62 w-72 object-cover mt-3 rounded-md">
+          <h3 class="text-xl font-bold">{{ music.nome }}</h3>
+          <p class="text-gray-400 font-bold">{{ music.artista }}</p>
+          <audio :src="music.url" controls class="mt-3 w-full"></audio>
+        </div>
       </div>
     </div>
 
@@ -19,14 +21,7 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
-
-interface Music {
-  id: number;
-  nome: string;
-  nomeArtista: string;
-  image_url: string;
-  url: string;
-}
+import {type Music} from "../interfaces/apiRef"
 
 const musics = ref<Music[]>([]);
 
@@ -45,3 +40,4 @@ onMounted(async () => {
   }
 });
 </script>
+../interfaces/api
