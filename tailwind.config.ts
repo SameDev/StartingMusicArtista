@@ -16,6 +16,7 @@ export default {
           "success": "#00d169",
           "warning": "#fcd34d",
           "error": "#ef4444",
+          "secondary-100": "#1c1e31"
         },
       },
     ],
