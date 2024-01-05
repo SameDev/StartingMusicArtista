@@ -8,6 +8,8 @@
           <img :src="music.image_url" :alt="music.nome" class="h-62 w-72 object-cover mt-3 rounded-md">
           <h3 class="text-xl font-bold">{{ music.nome }}</h3>
           <p class="text-gray-400 font-bold">{{ music.artista }}</p>
+          <p>{{ music.id }}</p>
+          <p>{{ music.tags }}</p>
           <audio :src="music.url" controls class="mt-3 w-full"></audio>
         </div>
       </div>
@@ -40,4 +42,3 @@ onMounted(async () => {
   }
 });
 </script>
-../interfaces/api
