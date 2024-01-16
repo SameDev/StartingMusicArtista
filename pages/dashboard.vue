@@ -25,10 +25,11 @@
         </div>
 
         <div class="mb-4">
-          <label for="tags" class="block text-white font-bold text-sm mb-2">Tags da Música</label>
-          <select v-model="tags" id="tags" class="select select-bordered w-full max-w-xs" multiple>
-            <option v-for="tag in allTags" :key="tag.id" :value="tag.id">{{ tag.nome }}</option>
-          </select>
+          <label class="block text-white font-bold text-sm mb-2">Tags da Música</label>
+          <div v-for="tag in allTags" :key="tag.id" class="flex items-center">
+            <input type="checkbox" v-model="tag.ativo" class="mr-2 toggle toggle-accent">
+            <label class="text-white">{{ tag.nome }}</label>
+          </div>
         </div>
 
         <button type="submit" class="btn btn-primary">Enviar Música</button>
@@ -42,8 +43,8 @@
 </template>
 
 <script lang="ts">
-import { ref } from 'vue';
 import type { Tags } from '~/interfaces/apiRef';
+
 
 export default {
   data() {
@@ -82,7 +83,7 @@ export default {
             url: this.url,
             imageUrl: this.imageUrl,
             duracao: this.duracao,
-            tags: this.tags,
+            tags: this.allTags.filter(tag => tag.ativo).map((tag: { id: number }) => tag.id), // Tipo explícito para 'tag'
             artistaId: this.artistaId,
           })
         });
@@ -101,7 +102,7 @@ export default {
         const response = await fetch("https://starting-music.onrender.com/tags");
         if (response.ok) {
           const tagsData = await response.json();
-          this.allTags = tagsData.tags;
+          this.allTags = tagsData.tags.map((tag: { id: number; nome: string }) => ({ ...tag, ativo: false })); // Tipo explícito para 'tag'
         } else {
           console.error("Falha ao buscar tags da API");
         }
@@ -115,4 +116,3 @@ export default {
   },
 };
 </script>
-

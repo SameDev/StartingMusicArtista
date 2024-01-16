@@ -18,5 +18,6 @@ export interface User {
 export interface Tags {
   id: number;
   nome: string;
+  ativo: boolean;
 }
 

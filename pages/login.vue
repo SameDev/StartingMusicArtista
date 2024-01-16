@@ -57,7 +57,7 @@ export default {
       };
 
       fetch(api_url, options)
-        .then(response => {
+        .then(async response => {
           if (!response.ok) {
             this.error = true;
 
@@ -68,27 +68,30 @@ export default {
 
           const jwtToken = authorizationHeader;
 
+          const data = await response.json();
+
           if (jwtToken) {
             localStorage.setItem('jwtToken', jwtToken);
-            this.sucess = true
+            this.sucess = true;
+            this.error = false;
 
-            return response.json();
+            return data;
             
           } else {
             this.error = true;
-            this.errorMessage = "Dados inseridos errados!"
+            this.errorMessage = data.message;
           }
 
-          return response.json();
+          return data;
         })
         .then(data => {
           if (data.user) {
             const { id, email, nome, cargo, foto_perfil } = data.user;
-            localStorage.setItem('userID', id)
-            localStorage.setItem('userEmail', email)
-            localStorage.setItem('userNome', nome)
-            localStorage.setItem('userCargo', cargo)
-            localStorage.setItem('userPic', foto_perfil)
+            localStorage.setItem('userID', id);
+            localStorage.setItem('userEmail', email);
+            localStorage.setItem('userNome', nome);
+            localStorage.setItem('userCargo', cargo);
+            localStorage.setItem('userPic', foto_perfil);
 
             this.$router.push('/').then(() => window.location.reload());
 
