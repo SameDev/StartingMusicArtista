@@ -25,13 +25,20 @@
         </div>
 
         <div class="mb-4">
-          <label for="tags" class="block text-white font-bold text-sm mb-2">Tags da Música</label>
-          <select v-model="tags" id="tags" class="select select-bordered w-full max-w-xs" multiple>
-            <option v-for="tag in allTags" :key="tag.id" :value="tag.id">{{ tag.nome }}</option>
-          </select>
+          <label class="block text-white font-bold text-sm mb-2">Tags da Música</label>
+          <div v-for="tag in allTags" :key="tag.id" class="flex items-center">
+            <input type="checkbox" v-model="tag.ativo" class="mr-2 toggle toggle-accent">
+            <label class="text-white">{{ tag.nome }}</label>
+          </div>
         </div>
 
         <button type="submit" class="btn btn-primary">Enviar Música</button>
+        
+        <div v-if="success" class="divider"></div>
+        <div v-if="success" role="alert" class="alert alert-success">
+          <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <span>Música enviada com sucesso!</span>
+        </div>
       </form>
     </div>
 
@@ -57,9 +64,10 @@ export default {
       url: "",
       imageUrl: "",
       duracao: "",
-      tags: [] as number[],
+      tags: [] as Tags[],
       artistaId: [] as number[],
-      allTags: [] as Tags[],
+      allTags: [] as { id: number, nome: string, ativo: boolean }[],
+      success: false
     };
   },
   methods: {
@@ -82,13 +90,13 @@ export default {
             url: this.url,
             imageUrl: this.imageUrl,
             duracao: this.duracao,
-            tags: this.tags,
+            tags: this.allTags.filter(tag => tag.ativo).map((tag: { id: number }) => tag.id), // Tipo explícito para 'tag'
             artistaId: this.artistaId,
           })
         });
 
         if (response.ok) {
-          console.log("Música enviada com sucesso!");
+          this.success = true;
         } else {
           throw new Error("Erro ao enviar a música. Verifique os detalhes da solicitação.");
         }
@@ -101,7 +109,7 @@ export default {
         const response = await fetch("https://starting-music.onrender.com/tags");
         if (response.ok) {
           const tagsData = await response.json();
-          this.allTags = tagsData.tags;
+          this.allTags = tagsData.tags.map((tag: { id: number; nome: string }) => ({ ...tag, ativo: false })); // Tipo explícito para 'tag'
         } else {
           console.error("Falha ao buscar tags da API");
         }
@@ -115,4 +123,3 @@ export default {
   },
 };
 </script>
-

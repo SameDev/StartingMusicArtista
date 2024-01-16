@@ -4,6 +4,7 @@ export interface Music {
   artista: string;
   image_url: string;
   url: string;
+  tags: Tags[]
 }
 
 export interface User {
@@ -13,6 +14,7 @@ export interface User {
   cargo: string;
   foto_perfil: string;
   data_nasc: Date;
+  songs: Music[]
 }
 
 export interface Tags {
