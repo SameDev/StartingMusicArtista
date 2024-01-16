@@ -18,12 +18,9 @@
       
       <div v-if="error || success" class="divider"></div>
 
-      <Error v-if="error" :error-message="errorMessage" />
+      <Error v-if="error" :error-message="errorMessage"/>
+      <Success v-if="success" :sucess-message="successMessage"/>
       
-      <div v-if="success" role="alert" class="alert alert-success">
-        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-        <span>Login realizado com sucesso!</span>
-      </div>
     </form>
   </div>
 </template>
@@ -31,6 +28,7 @@
 <script lang="ts">
 const api_url = "https://starting-music.onrender.com/user/login/";
 import error from '~/components/error.vue';
+import success from '~/components/success.vue';
 
 
 export default {
@@ -38,7 +36,8 @@ export default {
     return {
       error: false,
       errorMessage: "",
-      success: false
+      success: false,
+      successMessage: ""
     };
   },
   methods: {
@@ -71,6 +70,7 @@ export default {
           if (jwtToken) {
             localStorage.setItem('jwtToken', jwtToken);
             this.success = true;
+            this.successMessage = "Login Realizado!"
             this.error = false;
 
             return data;

@@ -41,22 +41,14 @@
           </div>
         </div>
 
-        <div class="mb-4">
-          <label class="block text-white font-bold text-sm mb-2">Tags da Música</label>
-          <div v-for="tag in allTags" :key="tag.id" class="flex items-center">
-            <input type="checkbox" v-model="tag.ativo" class="mr-2 toggle toggle-accent">
-            <label class="text-white">{{ tag.nome }}</label>
-          </div>
-        </div>
 
         <button type="submit" class="btn btn-primary">Enviar Música</button>
         <nuxt-link class="underline" to="/listar">Veja todas Músicas!</nuxt-link>
         
         <div v-if="success" class="divider"></div>
-        <div v-if="success" role="alert" class="alert alert-success">
-          <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-          <span>Música enviada com sucesso!</span>
-        </div>
+        <Success v-if="success" :sucess-message="successMessage"/>
+
+        <Error v-if="error" :error-message="errorMessage"/>
       </form>
     </div>
 
@@ -68,76 +60,94 @@
 
 <script lang="ts">
 import type { Tags } from '~/interfaces/apiRef';
-
+import success from '~/components/success.vue';
+import error from '~/components/error.vue';
 
 export default {
-  data() {
-    return {
-      userEmail: localStorage.getItem("userEmail") || "",
-      userPic: localStorage.getItem("userPic") || "",
-      userNome: localStorage.getItem("userNome") || "",
-      userID: localStorage.getItem("userID") || "",
-      nome: "",
-      artista: "",
-      url: "",
-      imageUrl: "",
-      duracao: "",
-      tags: [] as Tags[],
-      artistaId: [] as number[],
-      allTags: [] as { id: number, nome: string, ativo: boolean }[],
-      success: false
-    };
-  },
-  methods: {
-    logout() {
-      localStorage.clear();
-      this.$router.push('/').then(() => window.location.reload());
+    data() {
+        return {
+            userEmail: localStorage.getItem("userEmail") || "",
+            userPic: localStorage.getItem("userPic") || "",
+            userNome: localStorage.getItem("userNome") || "",
+            userID: localStorage.getItem("userID") || "",
+            nome: "",
+            artista: "",
+            url: "",
+            imageUrl: "",
+            duracao: "",
+            tags: [] as Tags[],
+            allTags: [] as {
+                id: number;
+                nome: string;
+                ativo: boolean;
+            }[],
+            success: false,
+            successMessage: "",
+            error: false,
+            errorMessage: ""
+        };
     },
-    async enviarMusica() {
-      try {
-        const response = await fetch("https://starting-music.onrender.com/music/create", {
-          method: "POST",
-          headers: new Headers({
-            "Content-Type": "application/json",
-            "Authorization": localStorage.getItem("jwtToken") || ""
-          }),
-          body: JSON.stringify({
-            nome: this.nome,
-            artista: this.artista,
-            userId: this.userID,
-            url: this.url,
-            imageUrl: this.imageUrl,
-            duracao: this.duracao,
-            tags: this.allTags.filter(tag => tag.ativo).map((tag: { id: number }) => tag.id), // Tipo explícito para 'tag'
-            artistaId: this.artistaId,
-          })
-        });
-
-        if (response.ok) {
-          this.success = true;
-        } else {
-          throw new Error("Erro ao enviar a música. Verifique os detalhes da solicitação.");
-        }
-      } catch (error: any) {
-        console.error("Erro durante o envio da música:", error.message);
-      }
+    methods: {
+        logout() {
+            localStorage.clear();
+            this.$router.push('/').then(() => window.location.reload());
+        },
+        async enviarMusica() {
+            try {
+                const response = await fetch("https://starting-music.onrender.com/music/create", {
+                    method: "POST",
+                    headers: new Headers({
+                        "Content-Type": "application/json",
+                        "Authorization": localStorage.getItem("jwtToken") || ""
+                    }),
+                    body: JSON.stringify({
+                        nome: this.nome,
+                        artista: this.artista,
+                        url: this.url,
+                        imageUrl: this.imageUrl,
+                        duracao: this.duracao,
+                        tags: this.allTags.filter(tag => tag.ativo).map((tag: {
+                            id: number;
+                        }) => tag.id),
+                        artistaId: [parseInt(this.userID)],
+                    })
+                });
+                if (response.ok) {
+                    this.success = true;
+                    this.successMessage = "Música Enviada!"
+                }
+                else {
+                  this.error = true;
+                  this.errorMessage = "Ocorreu um erro, verifique se enviou todos os campos!"
+                }
+            }
+            catch (error: any) {
+              this.error = true;
+              this.errorMessage = "Ocorreu um erro no servidor!";
+              console.log(error.message);
+            }
+        },
+        async fetchTags() {
+            try {
+                const response = await fetch("https://starting-music.onrender.com/tags");
+                if (response.ok) {
+                    const tagsData = await response.json();
+                    this.allTags = tagsData.tags.map((tag: {
+                        id: number;
+                        nome: string;
+                    }) => ({ ...tag, ativo: false })); // Tipo explícito para 'tag'
+                }
+                else {
+                    console.error("Falha ao buscar tags da API");
+                }
+            }
+            catch (error: any) {
+                console.error("Erro durante a busca de tags:", error.message);
+            }
+        },
     },
-    async fetchTags() {
-      try {
-        const response = await fetch("https://starting-music.onrender.com/tags");
-        if (response.ok) {
-          const tagsData = await response.json();
-          this.allTags = tagsData.tags.map((tag: { id: number; nome: string }) => ({ ...tag, ativo: false })); // Tipo explícito para 'tag'
-        } else {
-          console.error("Falha ao buscar tags da API");
-        }
-      } catch (error: any) {
-        console.error("Erro durante a busca de tags:", error.message);
-      }
+    async mounted() {
+        await this.fetchTags();
     },
-  },
-  async mounted() {
-    await this.fetchTags();
-  },
 };
 </script>
