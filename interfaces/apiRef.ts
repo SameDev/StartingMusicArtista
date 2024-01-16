@@ -4,7 +4,7 @@ export interface Music {
   artista: string;
   image_url: string;
   url: string;
-  tags: Tags[]
+  tags: Tags[];
 }
 
 export interface User {
@@ -20,5 +20,6 @@ export interface User {
 export interface Tags {
   id: number;
   nome: string;
+  ativo: boolean;
 }
 

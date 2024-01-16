@@ -23,6 +23,23 @@
           <label for="artista" class="block text-white font-bold text-sm mb-2">Nome do Artista</label>
           <input type="text" id="artista" v-model="artista" class="input input-bordered w-full">
         </div>
+        <div class="mb-4">
+          <label for="imageUrl" class="block text-white font-bold text-sm mb-2">URL da Imagem:</label>
+          <input type="text" id="imageUrl" v-model="imageUrl" class="input input-bordered w-full">
+        </div>
+        
+        <div class="mb-4">
+          <label for="url" class="block text-white font-bold text-sm mb-2">URL do Audio:</label>
+          <input type="text" id="url" v-model="url" class="input input-bordered w-full">
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-white font-bold text-sm mb-2">Tags da Música</label>
+          <div v-for="tag in allTags" :key="tag.id" class="flex items-center">
+            <input type="checkbox" v-model="tag.ativo" class="mr-2 toggle toggle-accent">
+            <label class="text-white">{{ tag.nome }}</label>
+          </div>
+        </div>
 
         <div class="mb-4">
           <label class="block text-white font-bold text-sm mb-2">Tags da Música</label>
@@ -33,6 +50,7 @@
         </div>
 
         <button type="submit" class="btn btn-primary">Enviar Música</button>
+        <nuxt-link class="underline" to="/listar">Veja todas Músicas!</nuxt-link>
         
         <div v-if="success" class="divider"></div>
         <div v-if="success" role="alert" class="alert alert-success">
@@ -49,8 +67,8 @@
 </template>
 
 <script lang="ts">
-import { ref } from 'vue';
 import type { Tags } from '~/interfaces/apiRef';
+
 
 export default {
   data() {

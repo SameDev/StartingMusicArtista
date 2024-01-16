@@ -7,7 +7,14 @@ export default defineNuxtConfig({
   ],
   css: [
     '@fortawesome/fontawesome-svg-core/styles.css'
-  ]
+  ],
+  app: {
+    head: {
+      charset: 'utf-8',
+      viewport: 'width=device-width, initial-scale=1',
+      title: "Starting Music"
+    }
+  }
 })
 
 

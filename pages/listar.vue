@@ -9,7 +9,9 @@
           <h3 class="text-xl font-bold">{{ music.nome }}</h3>
           <p class="text-gray-400 font-bold">{{ music.artista }}</p>
           <p>{{ music.id }}</p>
-          <p>{{ music.tags }}</p>
+          <div class="tags inline-block">
+            <span class="badge badge-accent badge-outline" v-for="tag in music.tags" :key="tag.id">{{ tag.nome }}</span>
+          </div>
           <audio :src="music.url" controls class="mt-3 w-full"></audio>
         </div>
       </div>
@@ -23,9 +25,10 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
-import {type Music} from "../interfaces/apiRef"
+import { type Tags, type Music } from "../interfaces/apiRef"
 
 const musics = ref<Music[]>([]);
+const tags = ref<Tags[]>([]);
 
 onMounted(async () => {
   try {
@@ -34,6 +37,7 @@ onMounted(async () => {
       const data = await response.json();
       const songs = data.songs || [];
       musics.value = songs;
+      tags.value = songs.tags;
     } else {
       console.error('Erro ao obter músicas da API:', response.statusText);
     }
