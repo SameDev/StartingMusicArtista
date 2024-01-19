@@ -1,5 +1,5 @@
 <template>
-  <div class="container justify-center items-center content-center mx-auto bg-secondary w-full p-7 m-10 rounded-lg">
+  <div class="container justify-center items-center content-center mx-auto bg-secondary w-full p-7 m-10 rounded-lg"> <!-- OLÁ, Mundo!-->
     <h2 class="text-center font-bold text-3xl">Login do Artista</h2>
     <form class="w-full" id="form" method="post" @submit.prevent="fazerLogin">
       <div class="label">
