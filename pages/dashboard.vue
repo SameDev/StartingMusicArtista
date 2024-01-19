@@ -1,10 +1,10 @@
 <template>
-  <div class="container justify-center items-center content-center mx-auto bg-secondary w-full p-7 m-10 rounded-md">
+  <div class="container justify-center items-center content-center mx-auto bg-secondary w-full p-7 m-10 rounded-md font-nunito">
     <div v-if="userEmail && userPic && userNome">
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center">
           <img class="w-20 mr-4 rounded-full" :src="userPic" :alt="'Foto de perfil de '+userNome" />
-          <h2 class="font-bold">{{ userNome }}</h2>
+          <h2 class="font-bold font-roboto">{{ userNome }}</h2>
         </div>
         <div class="logout text-2xl cursor-pointer" @click="logout">
           <font-awesome-icon :icon="['fas', 'right-from-bracket']" />

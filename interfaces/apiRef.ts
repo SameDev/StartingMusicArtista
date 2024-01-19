@@ -4,7 +4,7 @@ export interface Music {
   artista: string;
   image_url: string;
   url: string;
-  tags: Tags[]; // Correção aqui
+  tags: Tags[];
   artistaId: string[];
 }
 

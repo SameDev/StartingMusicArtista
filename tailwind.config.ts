@@ -2,6 +2,12 @@
 export default {
   content: [],
   theme: {
+    extend: {
+      fontFamily: {
+        'nunit': ['"Nunito"', 'sans-serif'],
+        'roboto': ['"Roboto"', 'arial-sans']
+      },
+    },
   },
   daisyui: {
     themes: [
