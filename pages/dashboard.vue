@@ -1,6 +1,6 @@
 <template>
   <div class="container justify-center items-center content-center mx-auto bg-secondary w-full p-7 m-10 rounded-md font-nunito">
-    <div v-if="userEmail && userPic && userNome">
+    <div v-if="isLogged">
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center">
           <img class="w-20 mr-4 rounded-full" :src="userPic" :alt="'Foto de perfil de '+userNome" />
@@ -66,6 +66,8 @@ import error from '~/components/error.vue';
 export default {
     data() {
         return {
+            isLogged: false,
+            jwtToken: "" as string,
             userEmail: localStorage.getItem("userEmail") || "",
             userPic: localStorage.getItem("userPic") || "",
             userNome: localStorage.getItem("userNome") || "",
@@ -87,9 +89,18 @@ export default {
             errorMessage: ""
         };
     },
+    beforeMount() {
+      const cookieToken = useCookie("jwtToken");
+      this.jwtToken = cookieToken.value as string;
+
+      if(this.jwtToken || this.jwtToken != '') {
+        this.isLogged = true;
+      }
+    },
     methods: {
         logout() {
-            localStorage.clear();
+            const cookie = useCookie('jwtToken');
+            cookie.value = "";
             this.$router.push('/').then(() => window.location.reload());
         },
         async enviarMusica() {
@@ -98,7 +109,7 @@ export default {
                     method: "POST",
                     headers: new Headers({
                         "Content-Type": "application/json",
-                        "Authorization": localStorage.getItem("jwtToken") || ""
+                        "Authorization": this.jwtToken || ""
                     }),
                     body: JSON.stringify({
                         nome: this.nome,
@@ -147,7 +158,7 @@ export default {
         },
     },
     async mounted() {
-        await this.fetchTags();
+      await this.fetchTags();
     },
 };
 </script>

@@ -68,11 +68,18 @@ export default {
           const data = await response.json();
 
           if (jwtToken) {
-            localStorage.setItem('jwtToken', jwtToken);
+            const cookieToken = useCookie("jwtToken", {
+              maxAge: 8 * 60 * 60,
+              secure: true,
+              sameSite: true,
+            });
+            cookieToken.value = jwtToken;
+
             this.success = true;
             this.successMessage = "Login Realizado!"
             this.error = false;
 
+            
             return data;
             
           } else {

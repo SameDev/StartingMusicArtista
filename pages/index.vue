@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Dashboard v-if="jwtToken" />
+    <Dashboard v-if="jwtToken || jwtToken != ''" />
     <Login v-else />
   </div>
 </template>
@@ -12,12 +12,16 @@ import Dashboard from './dashboard.vue';
 export default {
   data() {
     return {
-      jwtToken: localStorage.getItem("jwtToken")
+      jwtToken: ""
     }
+  },
+  beforeMount() {
+    const cookieToken = useCookie("jwtToken");
+    this.jwtToken = cookieToken.value as string;
   },
   components: {
     Login,
     Dashboard
-  }
+  },
 } 
 </script>

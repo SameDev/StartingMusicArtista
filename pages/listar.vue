@@ -36,7 +36,6 @@ onMounted(async () => {
     const response = await fetch(`https://starting-music.onrender.com/user/songs/${userID}`);
     if (response.ok) {
       const data = await response.json();
-      console.log(data)
       const songs: Music[] = data;
       musics.value = songs;
     } else {
