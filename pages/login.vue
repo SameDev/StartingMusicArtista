@@ -1,5 +1,5 @@
 <template>
-  <div class="container justify-center items-center content-center mx-auto bg-secondary w-full p-7 m-10 rounded-lg">
+  <div class="container justify-center items-center content-center mx-auto bg-secondary w-full p-12 mt-14 rounded-lg font-nunito">
     <h2 class="text-center font-bold text-3xl">Login do Artista</h2>
     <form class="w-full" id="form" method="post" @submit.prevent="fazerLogin">
       <div class="label">
@@ -11,17 +11,20 @@
       <div class="label">
         <span class="label-text font-bold text-xl">Qual é sua senha?</span>
       </div>
-      <input type="password" name="senha"
-        class="input input-lg input-bordered text-white w-full bg-accent outline-none mb-12">
+      <input type="password" name="senha" class="input input-lg input-bordered text-white w-full bg-accent outline-none mb-12">
 
       <input class="btn btn-lg btn-primary w-full text-2xl font-bold rounded-md mt-10 " type="submit" value="Login">
       
       <div v-if="error || success" class="divider"></div>
+      
 
       <Error v-if="error" :error-message="errorMessage"/>
       <Success v-if="success" :sucess-message="successMessage"/>
+      <Loading v-if="envio" />
+      
       
     </form>
+    
   </div>
 </template>
 
@@ -29,6 +32,7 @@
 const api_url = "https://starting-music.onrender.com/user/login/";
 import error from '~/components/error.vue';
 import success from '~/components/success.vue';
+import loading from '~/components/loading.vue';
 
 
 export default {
@@ -37,13 +41,23 @@ export default {
       error: false,
       errorMessage: "",
       success: false,
-      successMessage: ""
+      successMessage: "",
+      envio: false
     };
   },
   methods: {
     fazerLogin() {
       const email = this.$el.querySelector('input[name="email"]').value;
       const senha = this.$el.querySelector('input[name="senha"]').value;
+
+      this.envio = true;
+
+      if (email == "" || senha == "") {
+        this.envio = false;
+        this.error = true;
+        this.errorMessage = "Você precisa enviar todos os campos!";
+        return;
+      }
 
       const options = {
         method: 'POST',
@@ -78,6 +92,7 @@ export default {
             this.success = true;
             this.successMessage = "Login Realizado!"
             this.error = false;
+            this.envio = false;
 
             
             return data;
@@ -87,6 +102,7 @@ export default {
             console.log(body)
             this.error = true;
             this.errorMessage = data.message;
+            this.envio = false;
           }
 
           return data;
@@ -108,8 +124,9 @@ export default {
   
         })
         .catch(error => {
-          this.error = true
-          this.errorMessage = error
+          this.error = true;
+          this.errorMessage = error;
+          this.envio = false;
         });
 
 
