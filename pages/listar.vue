@@ -1,4 +1,5 @@
 <template>
+  <Sidebar/>
   <div class="container mx-auto p-7 m-10 rounded-md">
     <h2 class="text-center font-bold text-3xl">Lista de Músicas</h2>
     <div v-if="musics && musics.length > 0" class="mt-5 flex flex-wrap justify-center">
@@ -21,6 +22,7 @@
     <div v-else>
       Nenhuma música encontrada.
     </div>
+    <Loading v-if="loading"/>
   </div>
 </template>
 
@@ -30,11 +32,14 @@ import { type Music } from "../interfaces/apiRef"
 
 const musics = ref<Music[]>([]);
 const userID = localStorage.getItem("userID") || "";
+var loading = false;
 
 onMounted(async () => {
+  loading = true;
   try {
     const response = await fetch(`https://starting-music.onrender.com/user/songs/${userID}`);
     if (response.ok) {
+      loading = false;
       const data = await response.json();
       const songs: Music[] = data;
       musics.value = songs;

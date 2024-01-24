@@ -1,9 +1,11 @@
 <template>
+  <Sidebar v-if="isLogged"></Sidebar>
   <div class="container justify-center items-center content-center mx-auto bg-secondary w-full p-7 m-10 rounded-md font-nunito">
     <div v-if="isLogged">
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center">
-          <img class="w-20 mr-4 rounded-full" :src="userPic" :alt="'Foto de perfil de '+userNome" />
+          <img v-if="userPic === undefined || userPic === '' || userPic === null" class="w-20 h-20 mr-4 rounded-full" :src="userPic" :alt="'Foto de perfil de '+userNome" />
+          <NuxtImg v-else src="/user-placeholder.jpeg" class="w-20 h-20 mr-4 rounded-full"/>
           <h2 class="font-bold font-roboto">{{ userNome }}</h2>
         </div>
         <div class="logout text-2xl cursor-pointer" @click="logout">
@@ -42,13 +44,13 @@
         </div>
 
 
-        <button type="submit" class="btn btn-primary">Enviar Música</button>
-        <nuxt-link class="underline" to="/listar">Veja todas Músicas!</nuxt-link>
+        <button type="submit" class="btn btn-primary w-full">Enviar Música</button>
         
         <div v-if="success" class="divider"></div>
         <Success v-if="success" :sucess-message="successMessage"/>
-
         <Error v-if="error" :error-message="errorMessage"/>
+
+        <Loading v-if="loading"/>
       </form>
     </div>
 
@@ -60,8 +62,6 @@
 
 <script lang="ts">
 import type { Tags } from '~/interfaces/apiRef';
-import success from '~/components/success.vue';
-import error from '~/components/error.vue';
 
 export default {
     data() {
@@ -69,7 +69,7 @@ export default {
             isLogged: false,
             jwtToken: "" as string,
             userEmail: localStorage.getItem("userEmail") || "",
-            userPic: localStorage.getItem("userPic") || "",
+            userPic: localStorage.getItem("userPic") || undefined,
             userNome: localStorage.getItem("userNome") || "",
             userID: localStorage.getItem("userID") || "",
             nome: "",
@@ -86,7 +86,8 @@ export default {
             success: false,
             successMessage: "",
             error: false,
-            errorMessage: ""
+            errorMessage: "",
+            loading: false
         };
     },
     beforeMount() {
@@ -104,6 +105,7 @@ export default {
             this.$router.push('/').then(() => window.location.reload());
         },
         async enviarMusica() {
+          this.loading = true;
             try {
                 const response = await fetch("https://starting-music.onrender.com/music/create", {
                     method: "POST",
@@ -124,15 +126,19 @@ export default {
                     })
                 });
                 if (response.ok) {
+                    this.loading = false;
                     this.success = true;
-                    this.successMessage = "Música Enviada!"
+                    this.successMessage = "Música Enviada!";
+                    
                 }
                 else {
+                  this.loading = false;
                   this.error = true;
                   this.errorMessage = "Ocorreu um erro, verifique se enviou todos os campos!"
                 }
             }
             catch (error: any) {
+              this.loading = false;
               this.error = true;
               this.errorMessage = "Ocorreu um erro no servidor!";
               console.log(error.message);
@@ -146,10 +152,21 @@ export default {
                     this.allTags = tagsData.tags.map((tag: {
                         id: number;
                         nome: string;
-                    }) => ({ ...tag, ativo: false })); // Tipo explícito para 'tag'
+                    }) => ({ ...tag, ativo: false }));
                 }
                 else {
                     console.error("Falha ao buscar tags da API");
+                }
+
+                this.userPic = localStorage.getItem("userPic") || "";
+                console.log(this.userPic)
+
+                if (this.userPic === undefined || this.userPic === '' || this.userPic === null) {
+                  console.log(this.userPic === undefined)
+                  console.log(this.userPic === '')
+                  console.log(this.userPic === null)
+                } else {
+                  console.log("não")
                 }
             }
             catch (error: any) {
@@ -159,6 +176,8 @@ export default {
     },
     async mounted() {
       await this.fetchTags();
+
+      
     },
 };
 </script>

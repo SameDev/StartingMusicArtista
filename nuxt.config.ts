@@ -1,15 +1,12 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  modules: [
-    '@nuxtjs/tailwindcss',
-    ['@nuxtjs/google-fonts', {
-      families: {
-        Roboto: true,
-        Nunito: true,
-      }
-  }]
-  ],
+  modules: ['@nuxtjs/tailwindcss', ['@nuxtjs/google-fonts', {
+    families: {
+      Roboto: true,
+      Nunito: true,
+    }
+}], "@nuxt/image"],
   css: [
     '@fortawesome/fontawesome-svg-core/styles.css'
   ],
@@ -21,5 +18,3 @@ export default defineNuxtConfig({
     }
   }
 })
-
-
