@@ -1,38 +1,44 @@
 <template>
-  <div class="container justify-center items-center content-center mx-auto bg-secondary w-full p-12 mt-14 rounded-lg font-nunito">
-    <h2 class="text-center font-bold text-3xl">Login do Artista</h2>
-    <form class="w-full" id="form" method="post" @submit.prevent="fazerLogin">
-      <div class="label">
-        <span class="label-text font-bold text-xl">Qual é seu email?</span>
+  <section class="min-h-screen flex items-center justify-center">
+    <div class="bg-secondary flex rounded-2xl shadow-lg max-w-3xl p-5 items-center">
+      <div class="md:w-1/2 px-8 md:px-16">
+        <h2 class="font-bold text-2xl">Login do Artista</h2>
+
+        <form class="flex flex-col gap-4" id="form" method="post" @submit.prevent="fazerLogin">
+          <input type="email" name="email" class="mt-8 input input-bordered text-white mb-5 w-full bg-accent outline-none" required/> 
+          <div class="relative">
+            <input type="password" name="senha" class="input input-bordered text-white w-full bg-accent outline-none mb-12" required/>
+            <!-- <font-awesome-icon :icon="['fas', 'eye']" class="bi bi-eye absolute top-1/4 right-3 -translate-y-1/2"/>    -->
+          </div>
+          <button class="btn btn-lg btn-block btn-primary block font-bold rounded-md mt-10"
+                :class="{ 'disabled': envio }"
+                :disabled="envio"
+                
+                type="submit" value="Login">
+              <div v-if="envio" class="loading loading-secondary"></div>
+              <div v-else>Login</div>
+            </button>
+            <div class="divider"></div>
+            <div class="mt-3 text-xs flex justify-between items-center">
+              <p class="mr-2">Não tem uma conta ou não é um artista?</p>
+              <button class="btn btn-accent">Cadastro</button>
+            </div>
+          
+
+          <Error v-if="error" :error-message="errorMessage"/>
+          <Success v-if="success" :sucess-message="successMessage"/>
+        </form>
       </div>
-      <input type="email" name="email"
-        class="input input-lg input-bordered text-white mb-5 w-full bg-accent outline-none">
-
-      <div class="label">
-        <span class="label-text font-bold text-xl">Qual é sua senha?</span>
+      <div class="md:block hidden w-1/2">
+        <img class="rounded-2xl" src="https://images.unsplash.com/photo-1616606103915-dea7be788566?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1887&q=80">
       </div>
-      <input type="password" name="senha" class="input input-lg input-bordered text-white w-full bg-accent outline-none mb-12">
-
-      <input class="btn btn-lg btn-primary w-full text-2xl font-bold rounded-md mt-10 " type="submit" value="Login">
-      
-      <div v-if="error || success" class="divider"></div>
-      
-
-      <Error v-if="error" :error-message="errorMessage"/>
-      <Success v-if="success" :sucess-message="successMessage"/>
-      <Loading v-if="envio" />
-      
-      
-    </form>
-    
-  </div>
+    </div>
+  </section>
 </template>
 
 <script lang="ts">
 const api_url = "https://starting-music.onrender.com/user/login/";
-import error from '~/components/error.vue';
-import success from '~/components/success.vue';
-import loading from '~/components/loading.vue';
+
 
 
 export default {
@@ -89,11 +95,6 @@ export default {
             });
             cookieToken.value = jwtToken;
 
-            this.success = true;
-            this.successMessage = "Login Realizado!"
-            this.error = false;
-            this.envio = false;
-
             
             return data;
             
@@ -110,14 +111,25 @@ export default {
         .then(data => {
           if (data.user) {
             const { id, email, nome, cargo, foto_perfil } = data.user;
+            if (cargo === "USUARIO") {
+              this.envio = false;
+              this.error = true;
+              this.errorMessage = "Você não tem permissões para entrar aqui!";
+              return;
+            }
+
             localStorage.setItem('userID', id);
             localStorage.setItem('userEmail', email);
             localStorage.setItem('userNome', nome);
             localStorage.setItem('userCargo', cargo);
             localStorage.setItem('userPic', foto_perfil);
 
-            this.$router.push('/').then(() => window.location.reload());
+            this.error = false;
+            this.envio = false;
+            this.success = true;
+            this.successMessage = "Login Realizado!";
 
+            this.$router.push('/').then(() => window.location.reload());
 
             return Promise.resolve();
           }
@@ -132,8 +144,5 @@ export default {
 
     },
   },
-  components: {
-    error
-  }
 };
 </script>

@@ -4,8 +4,7 @@
     <div v-if="isLogged">
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center">
-          <img v-if="userPic === undefined || userPic === '' || userPic === null" class="w-20 h-20 mr-4 rounded-full" :src="userPic" :alt="'Foto de perfil de '+userNome" />
-          <NuxtImg v-else src="/user-placeholder.jpeg" class="w-20 h-20 mr-4 rounded-full"/>
+          <img class="w-20 h-20 mr-4 rounded-full" :src="userPic" :alt="'Foto de perfil de '+userNome" />
           <h2 class="font-bold font-roboto">{{ userNome }}</h2>
         </div>
         <div class="logout text-2xl cursor-pointer" @click="logout">
@@ -157,26 +156,22 @@ export default {
                 else {
                     console.error("Falha ao buscar tags da API");
                 }
-
-                this.userPic = localStorage.getItem("userPic") || "";
-                console.log(this.userPic)
-
-                if (this.userPic === undefined || this.userPic === '' || this.userPic === null) {
-                  console.log(this.userPic === undefined)
-                  console.log(this.userPic === '')
-                  console.log(this.userPic === null)
-                } else {
-                  console.log("não")
-                }
             }
             catch (error: any) {
                 console.error("Erro durante a busca de tags:", error.message);
             }
         },
+        async verificaImg() {
+          this.userPic = localStorage.getItem("userPic") || "";
+
+          if (this.userPic === undefined || this.userPic === "" || this.userPic === null || this.userPic === "null") {
+              this.userPic = '/user-placeholder.jpeg';
+          }
+        }
     },
     async mounted() {
       await this.fetchTags();
-
+      await this.verificaImg();
       
     },
 };

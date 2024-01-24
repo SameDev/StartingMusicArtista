@@ -5,7 +5,7 @@
     <div v-if="musics && musics.length > 0" class="mt-5 flex flex-wrap justify-center">
       <div v-for="music in musics" :key="music.id" class="m-3 p-3 bg-secondary w-1/3 rounded-md">
         <div class="flex flex-col items-center">
-          <img :src="music.image_url" :alt="music.nome" class="h-62 w-72 object-cover mt-3 rounded-md">
+          <img :src="music.image_url" :alt="music.nome" class="object-contain object-center h-62 w-72  mt-3 rounded-md">
           <h3 class="text-xl font-bold">{{ music.nome }}</h3>
           <p class="text-gray-400 font-bold">{{ music.artista }}</p>
           <div class="tags inline-block">
