@@ -4,9 +4,9 @@ export default defineNuxtConfig({
   modules: ['@nuxtjs/tailwindcss', ['@nuxtjs/google-fonts', {
     families: {
       Roboto: true,
-      Nunito: true,
+      "Nunito Sans": true,
     }
-}], "@nuxt/image"],
+}], "@nuxt/image", '@vueform/nuxt'],
   css: [
     '@fortawesome/fontawesome-svg-core/styles.css'
   ],

@@ -1,10 +1,14 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [],
+  content: [
+    './vueform.config.ts',
+    './node_modules/@vueform/vueform/themes/tailwind/**/*.vue',
+    './node_modules/@vueform/vueform/themes/tailwind/**/*.js',
+  ],
   theme: {
     extend: {
       fontFamily: {
-        'nunit': ['"Nunito"', 'sans-serif'],
+        'nunit': ['"Nunito Sans"', 'sans-serif'],
         'roboto': ['"Roboto"', 'arial-sans']
       },
     },
@@ -27,6 +31,10 @@ export default {
       },
     ],
   },
-  plugins: [require('daisyui')],
+  plugins: [
+    require('daisyui'),
+    require('@vueform/vueform/tailwind')
+  ],
+  
 }
 

@@ -35,11 +35,18 @@
         </div>
 
         <div class="mb-4">
-          <label class="block text-white font-bold text-sm mb-2">Tags da Música</label>
-          <div v-for="tag in allTags" :key="tag.id" class="flex items-center">
-            <input type="checkbox" v-model="tag.ativo" class="mr-2 toggle toggle-accent">
-            <label class="text-white">{{ tag.nome }}</label>
-          </div>
+          <label for="tags" class="block text-white font-bold text-sm mb-2">Tags da Música</label>
+          <Vueform v-model="selectedTags">
+            <MultiselectElement
+              name="tags"
+              track-by="label"
+              :search="true"
+              placeholder="Selecione as tags"
+              :native="false"
+              :items="allTags"
+              :multiple-label="(values: string | any[]) => `${values.length} Tags selecionadas`"
+            ></MultiselectElement>
+          </Vueform>
         </div>
 
 
@@ -60,7 +67,7 @@
 </template>
 
 <script lang="ts">
-import type { Tags } from '~/interfaces/apiRef';
+import type { Music, Tags } from '~/interfaces/apiRef';
 
 export default {
     data() {
@@ -77,11 +84,8 @@ export default {
             imageUrl: "",
             duracao: "",
             tags: [] as Tags[],
-            allTags: [] as {
-                id: number;
-                nome: string;
-                ativo: boolean;
-            }[],
+            selectedTags: { "tags": [] } as { tags: number[] }, 
+            allTags: [] as Tags[],
             success: false,
             successMessage: "",
             error: false,
@@ -118,9 +122,7 @@ export default {
                         url: this.url,
                         imageUrl: this.imageUrl,
                         duracao: this.duracao,
-                        tags: this.allTags.filter(tag => tag.ativo).map((tag: {
-                            id: number;
-                        }) => tag.id),
+                        tags: this.selectedTags.tags,
                         artistaId: [parseInt(this.userID)],
                     })
                 });
@@ -148,10 +150,13 @@ export default {
                 const response = await fetch("https://starting-music.onrender.com/tags");
                 if (response.ok) {
                     const tagsData = await response.json();
-                    this.allTags = tagsData.tags.map((tag: {
-                        id: number;
-                        nome: string;
-                    }) => ({ ...tag, ativo: false }));
+                    const uniqueTagsSet = new Set(tagsData.tags.flatMap((tag: Tags) =>
+                      JSON.stringify({ value: tag.id, label: tag.nome })
+                    ));
+
+                    this.allTags = Array.from(uniqueTagsSet).map((tag) => JSON.parse(tag as string));
+
+
                 }
                 else {
                     console.error("Falha ao buscar tags da API");
