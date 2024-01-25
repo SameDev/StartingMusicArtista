@@ -8,6 +8,7 @@
         <ul class="menu menu-lg">
           <li><nuxt-link to="/" class="text-white"><font-awesome-icon :icon="['fas', 'house']" /> Página Principal</nuxt-link></li>
           <li><nuxt-link to="/listar" class="text-white"><font-awesome-icon :icon="['fas', 'music']" /> Suas Músicas</nuxt-link></li>
+          <li><nuxt-link v-if="userCargo === 'ADMIN'" to="/" class="text-white"><font-awesome-icon :icon="['fas', 'user']" /> Gerenciar Usuarios</nuxt-link></li>
         </ul>
       </nav>
     </div>
@@ -18,6 +19,7 @@
 import { ref } from 'vue';
 
 const isSidebarOpen = ref(false);
+const userCargo = localStorage.getItem("userCargo") || "";
 
 const toggleSidebar = () => {
   isSidebarOpen.value = !isSidebarOpen.value;

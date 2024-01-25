@@ -5,7 +5,10 @@
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center">
           <img class="w-20 h-20 mr-4 rounded-full" :src="userPic" :alt="'Foto de perfil de '+userNome" />
-          <h2 class="font-bold font-roboto">{{ userNome }}</h2>
+          <div class="">
+            <h2 class="font-bold font-roboto text-md">{{ userNome }}</h2>
+            <h2 class="font-roboto text-sm font-medium text-accent">{{ userCargo }}</h2>
+          </div>
         </div>
         <div class="logout text-2xl cursor-pointer" @click="logout">
           <font-awesome-icon :icon="['fas', 'right-from-bracket']" />
@@ -78,6 +81,7 @@ export default {
             userPic: localStorage.getItem("userPic") || undefined,
             userNome: localStorage.getItem("userNome") || "",
             userID: localStorage.getItem("userID") || "",
+            userCargo: localStorage.getItem("userCargo") || "",
             nome: "",
             artista: "",
             url: "",
