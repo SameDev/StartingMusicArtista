@@ -6,9 +6,10 @@ export default defineNuxtConfig({
       Roboto: true,
       "Nunito Sans": true,
     }
-}], "@nuxt/image", '@vueform/nuxt'],
+}], "@nuxt/image", '@vueform/nuxt', 'nuxt-primevue' ],
   css: [
-    '@fortawesome/fontawesome-svg-core/styles.css'
+    '@fortawesome/fontawesome-svg-core/styles.css',
+    'primevue/resources/themes/aura-dark-purple/theme.css'
   ],
   app: {
     head: {

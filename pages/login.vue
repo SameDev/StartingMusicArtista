@@ -126,8 +126,8 @@ export default {
             localStorage.setItem('userID', id);
             localStorage.setItem('userEmail', email);
             localStorage.setItem('userNome', nome);
-            localStorage.setItem('userCargo', cargo);
             localStorage.setItem('userPic', foto_perfil);
+            localStorage.setItem('userCargo', cargo);
 
             this.error = false;
             this.envio = false;

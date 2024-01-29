@@ -1,187 +1,115 @@
 <template>
-  <Sidebar v-if="isLogged"></Sidebar>
-  <div class="container justify-center items-center content-center mx-auto bg-secondary w-full p-7 m-10 rounded-md font-nunito">
-    <div v-if="isLogged">
-      <div class="flex items-center justify-between mb-4">
-        <div class="flex items-center">
-          <img class="w-20 h-20 mr-4 rounded-full" :src="userPic" :alt="'Foto de perfil de '+userNome" />
-          <div class="">
-            <h2 class="font-bold font-roboto text-md">{{ userNome }}</h2>
-            <h2 class="font-roboto text-sm font-medium text-accent">{{ userCargo }}</h2>
+ <div class="dashboard" v-if="isLogged">
+  <Sidebar/>
+  <section class="ml-80 px-10 py-5">
+    <Header page="Página Principal" icon="house"></Header>
+    <div class="h-[86vh] flex flex-wrap">
+      <div class="w-[67%] h-1/2 bg-accent rounded-lg shadow-md mr-7"></div>
+      <div class="w-[31%] h-1/2 bg-accent rounded-lg shadow-md p-5">
+        <div v-if="loading" class="text-base-100 p-5 flex items-center justify-center"><div class="loading loading-base-100 loading-spinner" v-if="loading"></div> Buscando Músicas...</div>
+        <div v-else>
+          <h2 class="text-center w-full mt-5 text-base-100 font-bold text-2xl">Suas Faixas</h2>
+          <div v-if="musics && musics.length > 0">
+            <div v-for="(music, index) in musics.slice(0, 8)" :key="music.id" class="px-10 mt-2">
+              <ul class="list-disc text-base-100 ">
+                <li class="text-xl">{{ music.nome }}</li>
+              </ul>
+              
+            </div>
+            <nuxt-link to="/listar" class="text-base-100 font-bold text-2xl ml-2 block">
+              <font-awesome-icon :icon="['fas', 'headphones']" /> Ver todas
+            </nuxt-link>
+          </div>
+          <div v-else>
+            <nuxt-link to="/enviar-musica" class="text-base-100 font-bold text-2xl ml-2 mt-2">
+              <font-awesome-icon :icon="['fas', 'file-circle-plus']" /> Publique sua primeira música!
+            </nuxt-link>
           </div>
         </div>
-        <div class="logout text-2xl cursor-pointer" @click="logout">
-          <font-awesome-icon :icon="['fas', 'right-from-bracket']" />
-        </div>
+        
       </div>
+      
+      <div class="box-icons flex justify-between w-full h-1/4 py-5"> 
+        <nuxt-link to="/listar" class="bg-[#7E8BBA] w-1/4 h-full rounded-2xl shadow-sm flex justify-center align-center items-center text-7xl text-white mr-8 tooltip tooltip-top" data-tip="Ver suas músicas">
+          <font-awesome-icon :icon="['fas', 'headphones']" />
+        </nuxt-link>
+        <nuxt-link to="/enviar-musica" class="bg-[#7F7EBA] w-1/4 h-full rounded-2xl shadow-sm flex justify-center align-center items-center text-7xl text-white mr-8 tooltip tooltip-top" data-tip="Adicionar Nova Música">
+          <NuxtImg class="w-[45%] h-1/2" src="/add-song.png" />
+        </nuxt-link>
+        <nuxt-link to="/" class="bg-[#7EACBA] w-1/4 h-full rounded-2xl shadow-sm flex justify-center align-center items-center text-7xl text-white mr-8 tooltip tooltip-top" data-tip="Alcance">
+          <font-awesome-icon :icon="['fas', 'sliders']" />
+        </nuxt-link>
+        <nuxt-link to="/" class="bg-[#CF9368] w-1/4 h-full rounded-2xl shadow-sm flex justify-center align-center items-center text-7xl text-white mr-8 tooltip tooltip-top" data-tip="Seus comentarios">
+          <font-awesome-icon :icon="['fas', 'comments']" />
+        </nuxt-link>
+        <nuxt-link to="/" class="bg-[#B27CB4] w-1/4 h-full rounded-2xl shadow-sm flex justify-center align-center items-center text-7xl text-white mr-8 tooltip tooltip-top" data-tip="Editar úsuario">
+          <font-awesome-icon :icon="['fas', 'user-pen']" />
+        </nuxt-link>
+        <nuxt-link to="/" class="bg-[#9CBC88] w-1/4 h-full rounded-2xl shadow-sm flex justify-center align-center items-center text-7xl text-white tooltip tooltip-top" data-tip="Estátisticas e dados">
+          <font-awesome-icon :icon="['fas', 'chart-simple']" />
+        </nuxt-link>
+      </div> <!-- ICONS -->
 
-      <div class="divider font-bold">ADICIONAR MÚSICA</div>
-
-      <form @submit.prevent="enviarMusica">
-        <div class="mb-4">
-          <label for="nome" class="block text-white font-bold text-sm mb-2">Nome da Música</label>
-          <input type="text" id="nome" v-model="nome" class="input input-bordered w-full">
-        </div>
-
-        <div class="mb-4">
-          <label for="artista" class="block text-white font-bold text-sm mb-2">Nome do Artista</label>
-          <input type="text" id="artista" v-model="artista" class="input input-bordered w-full">
-        </div>
-        <div class="mb-4">
-          <label for="imageUrl" class="block text-white font-bold text-sm mb-2">URL da Imagem:</label>
-          <input type="text" id="imageUrl" v-model="imageUrl" class="input input-bordered w-full">
-        </div>
-        
-        <div class="mb-4">
-          <label for="url" class="block text-white font-bold text-sm mb-2">URL do Audio:</label>
-          <input type="text" id="url" v-model="url" class="input input-bordered w-full">
-        </div>
-
-        <div class="mb-4">
-          <label for="tags" class="block text-white font-bold text-sm mb-2">Tags da Música</label>
-          <Vueform v-model="selectedTags">
-            <MultiselectElement
-              name="tags"
-              track-by="label"
-              :search="true"
-              placeholder="Selecione as tags"
-              :native="false"
-              :items="allTags"
-              :multiple-label="(values: string | any[]) => `${values.length} Tags selecionadas`"
-            ></MultiselectElement>
-          </Vueform>
-        </div>
-
-
-        <button type="submit" class="btn btn-primary w-full">Enviar Música</button>
-        
-        <div v-if="success" class="divider"></div>
-        <Success v-if="success" :sucess-message="successMessage"/>
-        <Error v-if="error" :error-message="errorMessage"/>
-
-        <Loading v-if="loading"/>
-      </form>
+      <div class="w-[49%] h-1/4 bg-accent rounded-lg shadow-md mr-7"></div>
+      <div class="w-[49%] h-1/4 bg-accent rounded-lg shadow-md"></div>
     </div>
-
-    <div v-else>
-      Você não pode acessar essa página, <nuxt-link to="/" class="underline">Faça Login</nuxt-link>
-    </div>
+  </section>
+ </div>
+ <div v-else class="container justify-center items-center content-center mx-auto bg-secondary w-full p-7 m-10 rounded-md font-nunito">
+    Você não pode acessar essa página, <nuxt-link to="/" class="underline">Faça Login</nuxt-link>
   </div>
 </template>
 
 <script lang="ts">
-import type { Music, Tags } from '~/interfaces/apiRef';
+import { type Music } from '~/interfaces/apiRef';
 
 export default {
-    data() {
-        return {
-            isLogged: false,
-            jwtToken: "" as string,
-            userEmail: localStorage.getItem("userEmail") || "",
-            userPic: localStorage.getItem("userPic") || undefined,
-            userNome: localStorage.getItem("userNome") || "",
-            userID: localStorage.getItem("userID") || "",
-            userCargo: localStorage.getItem("userCargo") || "",
-            nome: "",
-            artista: "",
-            url: "",
-            imageUrl: "",
-            duracao: "",
-            tags: [] as Tags[],
-            selectedTags: { "tags": [] } as { tags: number[] }, 
-            allTags: [] as Tags[],
-            success: false,
-            successMessage: "",
-            error: false,
-            errorMessage: "",
-            loading: false
-        };
-    },
-    beforeMount() {
-      const cookieToken = useCookie("jwtToken");
-      this.jwtToken = cookieToken.value as string;
+  data() {
+    return {
+      userNome: localStorage.getItem("userNome") || "",
+      userPic: localStorage.getItem("userPic") || "",
+      userCargo: localStorage.getItem("userCargo") || "",
+      musics: [] as Music[],
+      loading: false,
+      isLogged: false,
+      jwtToken: "" as string,
+    }
+  },
+  beforeMount() {
+    const cookieToken = useCookie("jwtToken");
+    this.jwtToken = cookieToken.value as string;
 
-      if(this.jwtToken || this.jwtToken != '') {
-        this.isLogged = true;
+    if (this.jwtToken || this.jwtToken != '') {
+      this.isLogged = true;
+      this.fetchSongs(); 
+    }
+  },
+  methods: {
+    getMusicImage(imageSrc: string): string {
+      if (!imageSrc || imageSrc === "null") {
+        return "/img-placeholder.png";
+      }
+      return imageSrc;
+    },
+    async fetchSongs() {
+      const userID = localStorage.getItem("userID") || "";
+      this.loading = true;
+      try {
+        const response = await fetch(`https://starting-music.onrender.com/user/songs/${userID}`);
+        if (response.ok) {
+          this.loading = false;
+          const data = await response.json();
+          console.log(data);
+          this.musics = data;
+          const songs: Music[] = data;
+          this.musics = songs;
+        } else {
+          console.error('Erro ao obter músicas da API:', response.statusText);
+        }
+      } catch (error: any) {
+        console.error('Erro na requisição:', error.message);
       }
     },
-    methods: {
-        logout() {
-            const cookie = useCookie('jwtToken');
-            cookie.value = "";
-            this.$router.push('/').then(() => window.location.reload());
-        },
-        async enviarMusica() {
-          this.loading = true;
-            try {
-                const response = await fetch("https://starting-music.onrender.com/music/create", {
-                    method: "POST",
-                    headers: new Headers({
-                        "Content-Type": "application/json",
-                        "Authorization": this.jwtToken || ""
-                    }),
-                    body: JSON.stringify({
-                        nome: this.nome,
-                        artista: this.artista,
-                        url: this.url,
-                        imageUrl: this.imageUrl,
-                        duracao: this.duracao,
-                        tags: this.selectedTags.tags,
-                        artistaId: [parseInt(this.userID)],
-                    })
-                });
-                if (response.ok) {
-                    this.loading = false;
-                    this.success = true;
-                    this.successMessage = "Música Enviada!";
-                    
-                }
-                else {
-                  this.loading = false;
-                  this.error = true;
-                  this.errorMessage = "Ocorreu um erro, verifique se enviou todos os campos!"
-                }
-            }
-            catch (error: any) {
-              this.loading = false;
-              this.error = true;
-              this.errorMessage = "Ocorreu um erro no servidor!";
-              console.log(error.message);
-            }
-        },
-        async fetchTags() {
-            try {
-                const response = await fetch("https://starting-music.onrender.com/tags");
-                if (response.ok) {
-                    const tagsData = await response.json();
-                    const uniqueTagsSet = new Set(tagsData.tags.flatMap((tag: Tags) =>
-                      JSON.stringify({ value: tag.id, label: tag.nome })
-                    ));
-
-                    this.allTags = Array.from(uniqueTagsSet).map((tag) => JSON.parse(tag as string));
-
-
-                }
-                else {
-                    console.error("Falha ao buscar tags da API");
-                }
-            }
-            catch (error: any) {
-                console.error("Erro durante a busca de tags:", error.message);
-            }
-        },
-        async verificaImg() {
-          this.userPic = localStorage.getItem("userPic") || "";
-
-          if (this.userPic === undefined || this.userPic === "" || this.userPic === null || this.userPic === "null") {
-              this.userPic = '/user-placeholder.jpeg';
-          }
-        }
-    },
-    async mounted() {
-      await this.fetchTags();
-      await this.verificaImg();
-      
-    },
-};
+  },
+}
 </script>
