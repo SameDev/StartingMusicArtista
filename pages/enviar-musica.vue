@@ -1,16 +1,27 @@
 <template>
   <Sidebar v-if="isLogged"></Sidebar>
-  <section class="ml-80 px-10 py-5">
+  <section class="2xl:ml-80 px-10 py-5">
     <Header page="Enviar Música" icon="music"></Header>
-    <div class="container justify-center items-center content-center mx-auto bg-base-200 w-full shadow-lg p-7 m-10 rounded-md font-nunito">
+    <div class="container justify-center items-center content-center mx-auto bg-base-300 w-full shadow-xl p-7 m-10 rounded-md font-nunito">
       <div v-if="isLogged">
         <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center">
-            <img class="w-20 h-20 mr-4 rounded-full" :src="userPic" :alt="'Foto de perfil de '+userNome" />
+          <div class="flex items-center text-2xl">
+            <img class="w-20 h-20 mr-4 rounded-full" :src="getImage(userPic, 'user')" :alt="'Foto de perfil de '+userNome" />
             <div>
               <h2 class="font-bold font-roboto text-md">{{ userNome }}</h2>
               <h2 class="font-roboto text-sm font-medium text-accent">{{ userCargo }}</h2>
             </div>
+          </div>
+          <div class="md:flex hidden items-center justify-between m-3 p-3 bg-secondary rounded-md">
+              <div class="flex items-center pr-7">
+                <img :src="getImage(picImg, 'music')" :alt="nome" class="object-cover object-center h-24 w-24 mt-3 rounded-md mr-5">
+                <div>
+                  <h3 v-if="nome" class="text-2xl font-bold">{{ nome }}</h3>
+                  <h3 v-else class="text-xl font-bold">Nome da Sua Música</h3>
+                  <p class="text-gray-400 font-bold text-xl">{{ artista }}</p>
+                  <p v-if="date" class="font-bold text-purple-400 text-xs">{{ date }}</p>
+                </div>
+              </div>
           </div>
         </div>
 
@@ -19,28 +30,31 @@
         <form @submit.prevent="enviarMusica">
           <div class="mb-4">
             <label for="nome" class="block text-white font-bold text-sm mb-2">Nome da Música</label>
-            <input type="text" id="nome" v-model="nome" class="input input-bordered bg-accent w-full text-white">
+            <input type="nome" id="nome" v-model="nome" class="input input-bordered bg-accent w-full text-white">
           </div>
 
           <div class="mb-4">
             <label for="artista" class="block text-white font-bold text-sm mb-2">Nome do Artista</label>
-            <input type="text" id="artista" v-model="artista" class="input input-bordered bg-accent w-full text-white">
+            <input type="artista" id="artista" v-model="artista" class="input input-bordered bg-accent w-full text-white">
+          </div>
+          <div class="mb-4">
+            <label for="date" class="block text-white font-bold text-sm mb-2">Data De Lançamento</label>
+            <input type="date" id="date" v-model="date" class="input input-bordered bg-accent w-full text-white">
           </div>
           <div class="mb-4">
             <label for="imageUrl" class="block text-white font-bold text-sm mb-2">URL da Imagem:</label>
-            <input type="url" id="imageUrl" v-model="imageUrl" class="input input-bordered bg-accent w-full text-white">
+            <input type="url" id="imageUrl" v-model="imageUrl" @change="atualizarImagem()" class="input input-bordered bg-accent w-full text-white">
           </div>
           
           <div class="mb-4">
             <label for="url" class="block text-white font-bold text-sm mb-2">URL do Audio:</label>
-            <input type="text" id="url" v-model="url" class="text-white input input-bordered w-full bg-accent">
+            <input type="url" id="url" v-model="url" class="text-white input input-bordered w-full bg-accent">
           </div>
 
           <div class="mb-4">
             <label for="tags" class="block text-white font-bold text-sm mb-2">Tags da Música</label>
               <MultiSelect v-model="selectedTags" :options="allTags" filter optionLabel="name" selectedItemsLabel="{0} tags selecionadas" :maxSelectedLabels="3" class="w-full md:w-20rem input input-bordered bg-accent text-white" />
           </div>
-
 
           <button type="submit" class="btn btn-primary w-full">Enviar Música</button>
           
@@ -70,7 +84,7 @@ export default {
             isLogged: false,
             jwtToken: "" as string,
             userEmail: localStorage.getItem("userEmail") || "",
-            userPic: localStorage.getItem("userPic") || undefined,
+            userPic: localStorage.getItem("userPic") || "",
             userNome: localStorage.getItem("userNome") || "",
             userID: localStorage.getItem("userID") || "",
             userCargo: localStorage.getItem("userCargo") || "",
@@ -79,6 +93,7 @@ export default {
             url: "",
             imageUrl: "",
             duracao: "",
+            date: "" as unknown as Date, 
             tags: [] as Tags[],
             selectedTags: ref(), 
             allTags: [] as Tags[],
@@ -87,7 +102,8 @@ export default {
             error: false,
             errorMessage: "",
             loading: false,
-            tagsIds: [] as Number[]
+            tagsIds: [] as Number[],
+            picImg: ""
         };
     },
     beforeMount() {
@@ -119,6 +135,7 @@ export default {
               imageUrl: this.imageUrl,
               duracao: this.duracao,
               tags: this.tagsIds,
+              data_lanc: this.date,
               artistaId: [parseInt(this.userID)],
             })
           });
@@ -160,19 +177,37 @@ export default {
               console.error("Erro durante a busca de tags:", error.message);
           }
       },
-      async verificaImg() {
-        this.userPic = localStorage.getItem("userPic") || "";
-
-        if (this.userPic === undefined || this.userPic === "" || this.userPic === null || this.userPic === "null") {
-            this.userPic = '/user-placeholder.jpeg';
+      atualizarImagem() {
+        this.picImg = this.imageUrl;
+      },
+      getImage(imageUrl: string, type: string) {
+        if (!imageUrl || imageUrl === "null" || imageUrl === undefined || imageUrl === "") {
+          if (type === 'user') {
+            return "/user-placeholder.jpeg";
+          } else {
+            return "/img-placeholder.png"
+          }
         }
-      }
+
+        const img = new Image();
+        img.src = imageUrl;
+
+        img.onerror = () => {
+          this.handleImageError();
+        };
+
+        return imageUrl;
+      },
+      handleImageError() {
+        this.userPic = "";
+        this.picImg = "";
+      },
     },
     async mounted() {
       await this.fetchTags();
-      await this.verificaImg();
-      
+      this.artista = this.userNome;
     },
+    
     components: {
       MultiSelect
     }

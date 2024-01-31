@@ -7,6 +7,7 @@ export interface Music {
   tags: Tags[];
   artistaId: string[];
   loadingBtn: boolean;
+  data_lanc: Date;
 }
 
 export interface User {

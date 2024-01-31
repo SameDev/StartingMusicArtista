@@ -1,6 +1,6 @@
 <template>
-    <div class="w-full h-[9vh] flex justify-between items-center py-2">
-        <div class="flex items-center text-3xl">
+    <div class="2xl:ml-0 ml-12  w-full h-[9vh] flex justify-between items-center py-2">
+        <div class="items-center text-3xl hidden md:flex">
             <font-awesome-icon :icon="['fas', icon]" class="mr-2" /> 
             <h2 class="font-nunit font-bold text-3xl mt-1">{{ page }}</h2>
         </div>
@@ -9,7 +9,7 @@
                 <h2 class="font-bold font-roboto text-md">{{ userNome }}</h2>
                 <h2 class="font-roboto text-sm font-medium text-accent">{{ userCargo }}</h2>
             </div>
-            <div class="dropdown dropdown-hover dropdown-end">
+            <div class="dropdown dropdown-hover dropdown-end 2xl:mr-0 mr-12">
                 <img tabindex="0" role="button" :src="getUserImage(userPic)" :alt="userNome+' | Imagem do artista'" class="h-16 w-16 rounded-full">
                 <ul tabindex="0" class="dropdown-content z-[1] menu shadow p-0 bg-secondary rounded-md w-52">
                     <li><div class="cursor-pointer">
@@ -45,8 +45,9 @@ export default {
         },
         getUserImage(imageSrc: string): string {
             if (!imageSrc || imageSrc === "null") {
-                return "/user-placeholder.png";
+                return "/user-placeholder.jpeg";
             }
+
             return imageSrc;
         },
     },

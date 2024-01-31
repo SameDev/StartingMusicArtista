@@ -1,5 +1,5 @@
 <template>
-  <section class="px-10 py-5 w-full h-full fixed top-0 left-0 flex items-center justify-center bg-base-300 bg-opacity-75 shadow-md">
+  <section class="z-3 px-10 py-5 w-full h-full fixed top-0 left-0 flex items-center justify-center bg-base-300 bg-opacity-75 shadow-md overflow-y-auto">
     <div class="container justify-center items-center content-center mx-auto bg-base-200 w-full shadow-lg p-7 m-10 rounded-md font-nunito">
       <div>
         <div class="w-full flex justify-between items-center">
@@ -11,11 +11,15 @@
                   <div>
                     <h3 class="text-xl font-bold">{{ editedMusic.nome }}</h3>
                     <p class="text-gray-400 font-bold">{{ editedMusic.artista }}</p>
+                    <p class="font-bold text-purple-400 text-xs">{{ date }}</p>
+                    <div class="tags inline-block">
+                      <span class="badge badge-accent badge-outline" v-for="tag in selectedTags" :key="tag.code">{{ tag.name }}</span>
+                    </div>
                   </div>
                 </div>
             </div>
           </div>
-          <div class="text-3xl w-12 justify-center items-center p-2 flex h-12 bg-primary rounded-full">
+          <div class="text-3xl w-12 justify-center items-center p-2 flex h-12 bg-secondary rounded-full">
             <font-awesome-icon class="cursor-pointer" :icon="['fas', 'xmark']" @click="closeModal()"/>
           </div>
         </div>
@@ -67,7 +71,6 @@ export default {
     return {
       editedMusic: { ...this.music } as Music,
       loading: false,
-      tags: null as Tags[] | null,
       selectedTags: [] as { name: string; code: number }[],
       allTags: [] as Tags[],
       success: false,
@@ -75,50 +78,50 @@ export default {
       error: false,
       errorMessage: "",
       jwtToken: "",
-      tagsIds: [] as number[]
+      date: "" as unknown as Date,
+      tagsIds: [] as number[],
     };
   },
   async beforeMount() {
     const cookieToken = useCookie("jwtToken");
     this.jwtToken = cookieToken.value as string;
 
+    this.selectedTags = (this.editedMusic.tags || []).map(tag => ({ name: tag.nome, code: tag.id }));
     await this.fetchTags();
+  },
+  mounted() {
+    this.date = new Date(this.editedMusic.data_lanc);
+    this.date = this.date.toLocaleDateString() as unknown as Date;
   },
   methods: {
     async enviarMusica() {
       this.loading = true;
         try {
-        if (this.editedMusic.tags) {
-          this.selectedTags = this.editedMusic.tags
-          ? this.editedMusic.tags.map(tag => ({ name: tag.nome, code: tag.id }))
-          : [];
+          this.tagsIds = this.selectedTags.map(tag => tag.code) || [];
 
-          this.tagsIds = this.selectedTags.map(tag => tag.code);
-        }
-
-        console.log(this.editedMusic.id)
-
-        const response = await fetch(`https://starting-music.onrender.com/music/update/${this.editedMusic.id}`, {
-          method: "POST",
-          headers: new Headers({
-            "Content-Type": "application/json",
-            "Authorization": this.jwtToken || ""
-          }),
-          body: JSON.stringify({
-            nome: this.editedMusic.nome,
-            artista: this.editedMusic.artista,
-            url: this.editedMusic.url,
-            imageUrl: this.editedMusic.image_url,
-            tags: this.tagsIds,
-            artistaId: (this.editedMusic.artistaId || []).map(id => String(id)),
-          })
-        });
+          const response = await fetch(`https://starting-music.onrender.com/music/update/${this.editedMusic.id}`, {
+            method: "POST",
+            headers: new Headers({
+              "Content-Type": "application/json",
+              "Authorization": this.jwtToken || ""
+            }),
+            body: JSON.stringify({
+              nome: this.editedMusic.nome,
+              artista: this.editedMusic.artista,
+              url: this.editedMusic.url,
+              imageUrl: this.editedMusic.image_url,
+              tags: this.tagsIds,
+              artistaId: (this.editedMusic.artistaId || []).map(id => String(id)),
+            })
+          });
 
         if (response.ok) {
           this.loading = false;
           this.success = true;
           this.successMessage = "Edições Salvas!";
-          this.$emit('musicaEditada', this.editedMusic);
+          setTimeout(() => {
+            this.$emit('musicaEditada', this.editedMusic);
+          }, 200)
         } else {
           this.loading = false;
           this.error = true;

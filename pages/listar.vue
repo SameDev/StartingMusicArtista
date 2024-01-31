@@ -1,52 +1,39 @@
 <template>
-  <div v-if="isLogged">
+  <div v-if="isLogged" class="overflow-x-hidden">
     <Sidebar/>
-    <section class="ml-80 px-10 py-5">
+    <section class="2xl:ml-80 px-10 py-5">
       <Header page="Lista de Músicas" icon="headphones"></Header>
-      <div class="container mx-auto p-7 m-10">
+      <div class="container mx-auto p-7 md:m-10 m-0 ">
         <div class="w-full text-end">
           <nuxt-link to="enviar-musica" class="btn btn-success font-bold uppercase text-white shadow-sm"><font-awesome-icon :icon="['fas', 'plus']" /> Adicionar Nova Música</nuxt-link>
         </div>
         <div v-if="musics && musics.length > 0" class="mt-5 flex flex-wrap justify-center"  :class="{'overflow-hidden fixed': isEditing}">
-          <div v-for="music in musics" :key="music.id" class="m-3 p-3 bg-secondary w-1/3 rounded-md" >
-            <div class="flex items-center justify-between">
+          <div v-for="music in musics" :key="music.id" class="mt-3 p-3 bg-secondary md:w-1/3 md:m-3 w-full  rounded-md" >
+            <div class="flex items-center justify-between flex-wrap">
               <div class="flex items-center">
                 <img :src="getMusicImage(music.image_url)" :alt="music.nome" class="object-cover object-center h-20 w-20 mt-3 rounded-md mr-5">
                 <div>
                   <h3 class="text-xl font-bold">{{ music.nome }}</h3>
                   <p class="text-gray-400 font-bold">{{ music.artista }}</p>
-                  <p>{{ music.tags }}</p>
+                  <div class="tags inline-block">
+                    <span class="badge badge-accent badge-outline" v-for="tag in music.tags" :key="tag.id">{{ tag.nome }}</span>
+                  </div>
                 </div>
               </div>
-              <div class="flex items-center">
+              <div class="flex items-center md:m-0 mt-6">
                 <button @click="openEditModal(music)" class="btn btn-success mr-1 text-white">
                   <font-awesome-icon :icon="['fas', 'pen']" />
                 </button>
                 
                 <div class="aaaaaaa">
-                  
-                  <label for="my_modal_6" class="btn btn-error text-white">
+                  <button @click="openExcluirModal(music)" :id="'my_modal_' + music.id" class="btn btn-error text-white">
                     <font-awesome-icon :icon="['fas', 'trash']" />
-                  </label>
-                  <input type="checkbox" id="my_modal_6" class="modal-toggle" />
-                  <div class="modal" role="dialog">
-                  <div class="modal-box">
-                    <div class="modal-action">
-                      <label for="my_modal_6" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</label>
-                    </div>
-                    <h3 class="font-bold text-lg">Você deseja excluir?</h3>
-
-                    <p class="py-4">Essa ação é irreversível! Se você confirmar não terá como recuperar novamente!</p>
-                    <p>Você está excluindo a musica {{ music.id+" "+music.nome }}</p>
-                    <button 
-                      @click="deleteMusic(music.id)" 
-                      class="btn btn-error text-white w-full" 
-                      :class="{ 'disabled': music.loadingBtn }" 
-                      :disabled="music.loadingBtn">Excluir
-                      <div class="loading loading-spinner" v-if="music.loadingBtn"></div>
-                    </button>
-                  </div>
-                </div>
+                  </button>
+                  <ExcluirModal v-if="isRemoving && selectedMusic === music"
+                    :music="selectedMusic"
+                    @fecharModal="handleCloseExcluirModal"
+                    @confirmarExclusao="handleConfirmarExclusao"
+                  />
                 </div>
 
                 
@@ -83,8 +70,9 @@
 
 
 <script lang="ts">
+import type { Button } from "#build/components";
 import { type Music } from "../interfaces/apiRef";
-import 'daisyui';
+
 
 export default {
   data() {
@@ -94,7 +82,7 @@ export default {
       jwtToken: "",
       isLogged: false,
       isEditing: false, 
-      selectedMusic: null as unknown as Object,
+      selectedMusic: null as unknown as Music,
       isRemoving: false,
     };
   },
@@ -151,7 +139,6 @@ export default {
 
         if (response.ok) {
           this.musics = this.musics.filter((music) => music.id !== musicId);
-          this.$router.push('/').then(() => window.location.reload());
         } else {
           console.error("Erro ao excluir música:", response.statusText);
           if (musicIndex !== -1) {
@@ -170,12 +157,12 @@ export default {
         }
       }
     },
-    openEditModal(music: Object) {
+    openEditModal(music: Music) {
       this.selectedMusic = music;
       this.isEditing = true;
     },
     handleCloseEditModal() {
-      this.selectedMusic = null as unknown as object;
+      this.selectedMusic = null as unknown as Music;
       this.isEditing = false;
     },
     handleMusicaEditada(editedMusic: Music) {
@@ -184,13 +171,28 @@ export default {
         const updatedMusics = [...this.musics];
         updatedMusics[musicIndex] = editedMusic;
         this.musics = updatedMusics;
+        
+        this.$router.push('/listar').then(() => window.location.reload());
       }
 
-      this.selectedMusic = null as unknown as object;
+      this.$router.push('/listar').then(() => window.location.reload());
+      this.selectedMusic = null as unknown as Music;
       this.isEditing = false;
     },
-    openExcluirModal() {
+    openExcluirModal(music: Music) {
+      this.selectedMusic = music;
       this.isRemoving = true;
+    },
+    
+    handleCloseExcluirModal() {
+      this.selectedMusic = null as unknown as Music;
+      this.isRemoving = false;
+    },
+
+    handleConfirmarExclusao(musicId: number) {
+      this.deleteMusic(musicId);
+      this.selectedMusic = null as unknown as Music;
+      this.isRemoving = false;
     },
   },
 };
