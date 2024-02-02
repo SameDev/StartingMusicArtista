@@ -1,10 +1,10 @@
 <template>
   <div v-if="isLogged" class="overflow-x-hidden">
-    <Sidebar/>
+    <Sidebar />
     <section class="2xl:ml-[17%] px-10 py-5">
       <Header page="Editar Perfil" icon="user-pen"></Header>
       <div class="card card-compact w-full bg-base-200 shadow-xl relative">
-        <figure class="w-full shadow-inner"><nuxtImg class="w-full" src="/banner.jpg"/></figure>
+        <figure class="w-full shadow-inner"><nuxtImg class="w-full" src="/banner.jpg" /></figure>
         <div class="avatar absolute md:bottom-48 bottom-56 left-1 shadow-2xl">
           <div class="w-24 rounded-full shadow-2xl">
             <img :src="getUserImage(userPic)" />
@@ -23,17 +23,17 @@
         </div>
       </div>
 
-      <EditarPerfilModal/>
+      <EditarPerfilModal :user-id="userId" :user-nome="userName" :user-desc="userDesc" :user-pic="userPic" :user-tags="userTags" @perfil-editado="atualizarPerfil" :jwt-token="jwtToken" />
 
     </section>
-    
+
   </div>
   <span class="container justify-center items-center content-center bg-secondary w-full p-7 m-10 rounded-md font-nunito block" v-else>
     Você não pode acessar essa página, <nuxt-link to="/" class="underline">Faça Login</nuxt-link>
   </span>
 </template>
 
-<script lang="ts">
+<script lang="ts" >
 import type { Tags } from '~/interfaces/apiRef';
 
 export default {
@@ -47,7 +47,8 @@ export default {
       userPic: localStorage.getItem("userPic") || "",
       userTags: JSON.parse(localStorage.getItem("userTags") || "[]") as Tags[],
       userName: localStorage.getItem("userNome") || "Você não tem nome?",
-      userDesc: localStorage.getItem("userDesc") || "Adicione uma descrição de impacto para seus ouvintes entenderem bem quem você é!"
+      userDesc: localStorage.getItem("userDesc") || "Adicione uma descrição de impacto para seus ouvintes entenderem bem quem você é!",
+      userId: localStorage.getItem("userId") || ""
     };
   },
   beforeMount() {
@@ -78,10 +79,16 @@ export default {
       return imageSrc;
     },
     openEditModal() {
-
-    }
+      // Lógica para abrir a modal de edição
+      // Pode incluir um evento de emitir ou um método para mostrar a modal
+      console.log("Abrir modal de edição");
+    },
+    atualizarPerfil(novoPerfil: object) {
+      // Lógica para atualizar dados do usuário após a edição na modal
+      console.log("Perfil atualizado:", novoPerfil);
+      // Atualize os dados conforme necessário
+    },
   }
 }
-
 
 </script>

@@ -7,6 +7,17 @@
         <input type="text" id="nome" v-model="userNome" class="input input-bordered text-white  bg-accent w-full">
       </div>
       <div class="mb-4">
+        <label for="cargo" class="block text-white font-bold text-sm mb-2 font-roboto-500"><font-awesome-icon :icon="['fas', 'address-card']" /> Seu Cargo</label>
+        <select id="cargo" v-model="userCargo" class="select select-bordered w-full bg-accent text-white">
+          <option>USUARIO</option>
+          <option>ARTISTA</option>
+        </select>
+      </div>
+      <div class="mb-4">
+        <label for="data" class="block text-white font-bold text-sm mb-2 font-roboto-500"><font-awesome-icon :icon="['fas', 'calendar']" /> Data de Nascimento:</label>
+        <input type="date" id="data" v-model="userNasc" class="input input-bordered text-white bg-accent w-full">
+      </div>
+      <div class="mb-4">
         <label for="desc" class="block text-white font-bold text-sm mb-2 font-roboto-500"><font-awesome-icon :icon="['fas', 'user-pen']" /> Descrição do seu perfil:</label>
         <textarea id="desc" v-model="userDesc" class="textarea textarea-bordered w-full text-white  bg-accent" placeholder="Bio"></textarea>
       </div>
@@ -32,17 +43,26 @@
 import type { Tags, User } from '~/interfaces/apiRef';
 
 export default {
+  props: {
+    jwtToken: String
+  },
   data() {
     return {
       userPic: localStorage.getItem("userPic") || "",
       userTags: JSON.parse(localStorage.getItem("userTags") || "[]"),
       userNome: localStorage.getItem("userNome") || "Você não tem nome?",
       userDesc: localStorage.getItem("userDesc") || "Adicione uma descrição de impacto para seus ouvintes entenderem bem quem você é!",
-      allTags: [] as Tags[]
+      allTags: [] as Tags[],
+      userCargo: localStorage.getItem("userCargo"),
+      userID: localStorage.getItem("userID") || "",
+      userNasc: localStorage.getItem("userNasc") || "" as unknown as Date,
     }
   },
   beforeMount() {
     this.fetchTags()
+
+    this.userNasc = new Date(this.userNasc);
+    this.userNasc = this.userNasc.toISOString().split("T")[0] as unknown as Date
 
     this.userTags = (this.userTags || []).map((tag: { nome: any; id: any; }) => ({ name: tag.nome, code: tag.id }));
     if (!this.userDesc || this.userDesc == "null") {
@@ -54,7 +74,33 @@ export default {
   },
   methods: {
     async editarUser() {
-      
+      try {
+        const response = await fetch(`https://starting-music.onrender.com/update/${this.userID}`, {
+          method: "POST",
+          headers: new Headers({
+            "Content-Type": "application/json",
+            "Authorization": this.jwtToken || ""
+          }),
+          body: JSON.stringify({
+            nome: this.userNome,
+            descricao: this.userDesc,
+            url: this.userPic,
+            tags: this.userTags,
+            cargo: this.userCargo
+          }),
+        });
+
+        if (response.ok) {
+          this.$emit("perfil-editado");
+          console.log("Perfil editado com sucesso");
+        } else {
+          // Trate erros conforme necessário
+          console.error("Falha ao editar o perfil");
+        }
+      } catch (error) {
+        // Trate erros conforme necessário
+        console.error("Erro durante a edição do perfil:", error.message);
+      }
     },
     async fetchTags() {
       try {

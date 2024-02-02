@@ -121,7 +121,6 @@ export default {
     },
     methods: {
       async enviarMusica() {
-        console.log(storage)
         this.loading = true;
         if(!this.verificaCampos()) return;
         else {
@@ -223,11 +222,11 @@ export default {
       },
       atualizarImagem(event: Event) {
         const imageFile = (event.target as HTMLInputElement).files?.[0];
-        const imageReader = new FileReader();
-        imageReader.onloadend = () => {
-          this.imageUrl = imageReader.result as string;
-        };
         if (imageFile) {
+          const imageReader = new FileReader();
+          imageReader.onloadend = () => {
+            this.imageUrl = imageReader.result as string;
+          };
           imageReader.readAsDataURL(imageFile);
         }
       },

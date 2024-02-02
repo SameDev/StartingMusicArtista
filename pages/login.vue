@@ -113,7 +113,7 @@ export default {
         })
         .then(data => {
           if (data.user) {
-            const { id, email, nome, cargo, foto_perfil, tags, desc } = data.user;
+            const { id, email, nome, cargo, foto_perfil, tags, desc, data_nasc } = data.user;
             if (cargo === "USUARIO") {
               this.envio = false;
               this.error = true;
@@ -128,6 +128,7 @@ export default {
             localStorage.setItem('userCargo', cargo);
             localStorage.setItem('userTags', JSON.stringify(tags) || "[]");
             localStorage.setItem('userDesc', desc);
+            localStorage.setItem('userNasc', data_nasc)
 
           
             this.error = false;

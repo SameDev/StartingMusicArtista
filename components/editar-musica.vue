@@ -33,14 +33,15 @@
             <label for="artista" class="block text-white font-bold text-sm mb-2 font-roboto-500">Nome do Artista</label>
             <input type="text" id="artista" v-model="editedMusic.artista" class="input input-bordered bg-accent text-white  w-full">
           </div>
+
           <div class="mb-4">
-            <label for="imageUrl" class="block text-white font-bold text-sm mb-2 font-roboto-500">URL da Imagem:</label>
-            <input type="text" id="imageUrl" v-model="editedMusic.image_url" class="input input-bordered bg-accent w-full text-white">
+            <label for="imageUrl" class="block text-white font-bold text-sm mb-2">Imagem:</label>
+            <input type="file" id="imageUrl" @change="atualizarImagem" ref="imageUrlInput" class="file-input file-input-bordered w-full bg-accent text-white" accept="image/*">
           </div>
-          
+
           <div class="mb-4">
-            <label for="url" class="block text-white font-bold text-sm mb-2 font-roboto-500">URL do Áudio:</label>
-            <input type="text" id="url" v-model="editedMusic.url" class=" input input-bordered w-full text-white  bg-accent">
+            <label for="audioFile" class="block text-white font-bold text-sm mb-2">Arquivo de Áudio:</label>
+            <input type="file" id="audioFile" @change="atualizarAudio" ref="audioFileInput" class="file-input file-input-bordered w-full bg-accent text-white" accept="audio/*">
           </div>
 
           <div class="mb-4">
@@ -80,6 +81,7 @@ export default {
       jwtToken: "",
       date: "" as unknown as Date,
       tagsIds: [] as number[],
+      audioFile: null as unknown as File,
     };
   },
   async beforeMount() {
@@ -97,6 +99,24 @@ export default {
     async enviarMusica() {
       this.loading = true;
         try {
+          let imageUrl = "";
+          if (this.editedMusic.image_url !== this.editedMusic.image_url) {
+            const imageRef = FireRef(storage, `images/${this.editedMusic.nome}-${Date.now()}`);
+            const imageSnapshot = await uploadBytes(imageRef, this.dataURLtoBlob(this.editedMusic.image_url));
+            imageUrl = await getDownloadURL(imageSnapshot.ref);
+          } else {
+            imageUrl = this.editedMusic.image_url;
+          }
+
+          let audioUrl = "";
+          if (this.audioFile) {
+            const audioRef = FireRef(storage, `audio/${this.editedMusic.nome}-${Date.now()}`);
+            const audioSnapshot = await uploadBytes(audioRef, this.audioFile);
+            audioUrl = await getDownloadURL(audioSnapshot.ref);
+          } else {
+            audioUrl = this.editedMusic.url;
+          }
+
           this.tagsIds = this.selectedTags.map(tag => tag.code) || [];
 
           const response = await fetch(`https://starting-music.onrender.com/music/update/${this.editedMusic.id}`, {
@@ -108,8 +128,8 @@ export default {
             body: JSON.stringify({
               nome: this.editedMusic.nome,
               artista: this.editedMusic.artista,
-              url: this.editedMusic.url,
-              imageUrl: this.editedMusic.image_url,
+              songUrl: audioUrl,
+              imageUrl: imageUrl,
               tags: this.tagsIds,
               artistaId: (this.editedMusic.artistaId || []).map(id => String(id)),
             })
@@ -171,6 +191,34 @@ export default {
       };
 
       return imageUrl;
+    },
+    atualizarImagem(event: Event) {
+      const imageFile = (event.target as HTMLInputElement).files?.[0];
+      if (imageFile) {
+        const imageReader = new FileReader();
+        imageReader.onloadend = () => {
+          this.editedMusic.image_url = imageReader.result as string;
+        };
+        imageReader.readAsDataURL(imageFile);
+      }
+    },
+    atualizarAudio(event: Event) {
+      const audioFile = (event.target as HTMLInputElement).files?.[0];
+      if (audioFile) {
+        this.audioFile = audioFile;
+      }
+    },
+    dataURLtoBlob(dataURL: string) {
+      const arr = dataURL.split(',');
+      const mimeMatch = arr[0]?.match(/:(.*?);/);
+      const mime = mimeMatch ? mimeMatch[1] : '';
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new Blob([u8arr], { type: mime });
     },
     handleImageError() {
       this.editedMusic.image_url = "";
