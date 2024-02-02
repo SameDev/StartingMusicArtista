@@ -4,7 +4,7 @@
             <font-awesome-icon :icon="['fas', icon]" class="mr-2" /> 
             <h2 class="font-nunit font-bold text-3xl mt-1">{{ page }}</h2>
         </div>
-        <div class="flex justify-center items-center p-2 text-xl">
+        <div class="flex justify-center items-center p-2 text-2xl">
             <div class="mr-5 text-end">
                 <h2 class="font-bold font-roboto text-md">{{ userNome }}</h2>
                 <h2 class="font-roboto text-sm font-medium text-accent">{{ userCargo }}</h2>

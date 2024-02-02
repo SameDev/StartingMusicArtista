@@ -11,6 +11,8 @@ export default defineNuxtConfig({
     '@fortawesome/fontawesome-svg-core/styles.css',
     'primevue/resources/themes/aura-dark-purple/theme.css',
   ],
+  runtimeConfig: {
+  },
   app: {
     head: {
       charset: 'utf-8',

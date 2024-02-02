@@ -17,7 +17,8 @@ export interface User {
   cargo: string;
   foto_perfil: string;
   data_nasc: Date;
-  songs: Music[]
+  songs: Music[];
+  tags: Tags[];
 }
 
 export interface Tags {

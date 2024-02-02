@@ -1,7 +1,7 @@
 <template>
   <div v-if="isLogged" class="overflow-x-hidden">
     <Sidebar/>
-    <section class="2xl:ml-80 px-10 py-5">
+    <section class="2xl:ml-[17%] px-10 py-5">
       <Header page="Lista de Músicas" icon="headphones"></Header>
       <div class="container mx-auto p-7 md:m-10 m-0 ">
         <div class="w-full text-end">
@@ -10,7 +10,7 @@
         <div v-if="musics && musics.length > 0" class="mt-5 flex flex-wrap justify-center"  :class="{'overflow-hidden fixed': isEditing}">
           <div v-for="music in musics" :key="music.id" class="mt-3 p-3 bg-secondary md:w-1/3 md:m-3 w-full  rounded-md" >
             <div class="flex items-center justify-between flex-wrap">
-              <div class="flex items-center">
+              <div class="flex items-center flex-wrap">
                 <img :src="getMusicImage(music.image_url)" :alt="music.nome" class="object-cover object-center h-20 w-20 mt-3 rounded-md mr-5">
                 <div>
                   <h3 class="text-xl font-bold">{{ music.nome }}</h3>

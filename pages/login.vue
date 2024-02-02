@@ -30,7 +30,7 @@
       <div class="md:flex hidden w-1/2 flex-col items-center justify-center">
         <NuxtImg class="rounded-2xl mb-5"  src="/login.jpg"/>
         <div class="logo flex items-center justify-center">
-          <NuxtImg class="w-20 h-20" src="/logo.png"/>
+          <NuxtImg class="w-20 h-20" src="/logo.svg"/>
           <h2 class="ml-4 font-bold font-nunit">Starting Music</h2>
         </div>
       </div>
@@ -104,8 +104,6 @@ export default {
             return data;
             
           } else {
-            const body = response.body || "";
-            console.log(body)
             this.error = true;
             this.errorMessage = data.message;
             this.envio = false;
@@ -115,7 +113,7 @@ export default {
         })
         .then(data => {
           if (data.user) {
-            const { id, email, nome, cargo, foto_perfil } = data.user;
+            const { id, email, nome, cargo, foto_perfil, tags, desc } = data.user;
             if (cargo === "USUARIO") {
               this.envio = false;
               this.error = true;
@@ -128,13 +126,16 @@ export default {
             localStorage.setItem('userNome', nome);
             localStorage.setItem('userPic', foto_perfil);
             localStorage.setItem('userCargo', cargo);
+            localStorage.setItem('userTags', JSON.stringify(tags) || "[]");
+            localStorage.setItem('userDesc', desc);
 
+          
             this.error = false;
             this.envio = false;
             this.success = true;
             this.successMessage = "Login Realizado!";
 
-            this.$router.push('/').then(() => window.location.reload());
+            this.$router.push('/').then(() => window.location.reload())
 
             return Promise.resolve();
           }

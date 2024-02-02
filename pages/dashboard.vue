@@ -1,7 +1,7 @@
 <template>
  <div class="dashboard overflow-x-hidden" v-if="isLogged">
   <Sidebar/>
-  <section class="2xl:ml-80 px-10 py-5">
+  <section class="2xl:ml-[17%] px-10 py-5">
     <Header page="Página Principal" icon="house"></Header>
     <div class="h-[86vh] flex flex-wrap">
       <div class="w-[67%] h-1/2 bg-accent rounded-lg shadow-md mr-7 box-container"></div>
@@ -109,7 +109,6 @@ export default {
         if (response.ok) {
           this.loading = false;
           const data = await response.json();
-          console.log(data);
           this.musics = data;
           const songs: Music[] = data;
           this.musics = songs;

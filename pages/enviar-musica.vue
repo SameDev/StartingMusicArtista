@@ -1,82 +1,86 @@
 <template>
-  <Sidebar v-if="isLogged"></Sidebar>
-  <section class="2xl:ml-80 px-10 py-5">
-    <Header page="Enviar Música" icon="music"></Header>
-    <div class="container justify-center items-center content-center mx-auto bg-base-300 w-full shadow-xl p-7 m-10 rounded-md font-nunito">
-      <div v-if="isLogged">
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center text-2xl">
-            <img class="w-20 h-20 mr-4 rounded-full" :src="getImage(userPic, 'user')" :alt="'Foto de perfil de '+userNome" />
-            <div>
-              <h2 class="font-bold font-roboto text-md">{{ userNome }}</h2>
-              <h2 class="font-roboto text-sm font-medium text-accent">{{ userCargo }}</h2>
+  <div v-if="isLogged" class="overflow-x-hidden">
+    <Sidebar></Sidebar>
+    <section class="2xl:ml-[17%] px-10 py-5">
+      <Header page="Enviar Música" icon="music"></Header>
+      <div class="container justify-center items-center content-center mx-auto bg-base-300 w-full shadow-xl p-7 m-10 rounded-2xl font-nunito">
+        <div >
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center text-2xl">
+              <img class="w-20 h-20 mr-4 rounded-full" :src="getImage(userPic, 'user')" :alt="'Foto de perfil de '+userNome" />
+              <div>
+                <h2 class="font-bold font-roboto text-md">{{ userNome }}</h2>
+                <h2 class="font-roboto text-sm font-medium text-accent">{{ userCargo }}</h2>
+              </div>
+            </div>
+            <div class="md:flex hidden items-center justify-between m-3 p-3 bg-secondary rounded-md">
+                <div class="flex items-center pr-7">
+                  <img :src="getImage(picImg, 'music')" :alt="nome" class="object-cover object-center h-24 w-24 mt-3 rounded-md mr-5">
+                  <div>
+                    <h3 v-if="nome" class="text-2xl font-bold">{{ nome }}</h3>
+                    <h3 v-else class="text-xl font-bold">Nome da Sua Música</h3>
+                    <p class="text-gray-400 font-bold text-xl">{{ artista }}</p>
+                    <p v-if="date" class="font-bold text-purple-400 text-xs">{{ date }}</p>
+                  </div>
+                </div>
             </div>
           </div>
-          <div class="md:flex hidden items-center justify-between m-3 p-3 bg-secondary rounded-md">
-              <div class="flex items-center pr-7">
-                <img :src="getImage(picImg, 'music')" :alt="nome" class="object-cover object-center h-24 w-24 mt-3 rounded-md mr-5">
-                <div>
-                  <h3 v-if="nome" class="text-2xl font-bold">{{ nome }}</h3>
-                  <h3 v-else class="text-xl font-bold">Nome da Sua Música</h3>
-                  <p class="text-gray-400 font-bold text-xl">{{ artista }}</p>
-                  <p v-if="date" class="font-bold text-purple-400 text-xs">{{ date }}</p>
-                </div>
-              </div>
-          </div>
+
+          <div class="divider font-bold">ADICIONAR MÚSICA</div>
+
+          <form @submit.prevent="enviarMusica">
+            <div class="mb-4">
+              <label for="nome" class="block text-white font-bold text-sm mb-2">Nome da Música</label>
+              <input type="nome" id="nome" v-model="nome" class="input input-bordered bg-accent w-full text-white" required>
+            </div>
+
+            <div class="mb-4">
+              <label for="artista" class="block text-white font-bold text-sm mb-2">Nome do Artista</label>
+              <input type="artista" id="artista" v-model="artista" class="input input-bordered bg-accent w-full text-white" required>
+            </div>
+            <div class="mb-4">
+              <label for="date" class="block text-white font-bold text-sm mb-2">Data De Lançamento</label>
+              <input type="date" id="date" v-model="date" class="input input-bordered bg-accent w-full text-white" required> 
+            </div>
+
+            <div class="mb-4">
+              <label for="imageUrl" class="block text-white font-bold text-sm mb-2">Imagem:</label>
+              <input type="file" id="imageUrl" @change="atualizarImagem" ref="imageUrlInput" class="file-input file-input-bordered w-full bg-accent text-white" accept="image/*" required>
+            </div>
+
+            <div class="mb-4">
+              <label for="audioFile" class="block text-white font-bold text-sm mb-2">Arquivo de Áudio:</label>
+              <input type="file" id="audioFile" @change="atualizarAudio" ref="audioFileInput" class="file-input file-input-bordered w-full bg-accent text-white" accept="audio/*" required>
+            </div>
+
+            <div class="mb-4">
+              <label for="tags" class="block text-white font-bold text-sm mb-2">Tags da Música</label>
+                <MultiSelect v-model="selectedTags" :options="allTags" filter optionLabel="name" selectedItemsLabel="{0} tags selecionadas" :maxSelectedLabels="3" class="w-full md:w-20rem input input-bordered bg-accent text-white" />
+            </div>
+
+            <button type="submit" class="btn btn-primary w-full">Enviar Música</button>
+            
+            <div v-if="success || error" class="divider"></div>
+            <Success v-if="success" :sucess-message="successMessage"/>
+            <Error v-if="error" :error-message="errorMessage"/>
+
+            <Loading v-if="loading"/>
+          </form>
         </div>
 
-        <div class="divider font-bold">ADICIONAR MÚSICA</div>
-
-        <form @submit.prevent="enviarMusica">
-          <div class="mb-4">
-            <label for="nome" class="block text-white font-bold text-sm mb-2">Nome da Música</label>
-            <input type="nome" id="nome" v-model="nome" class="input input-bordered bg-accent w-full text-white">
-          </div>
-
-          <div class="mb-4">
-            <label for="artista" class="block text-white font-bold text-sm mb-2">Nome do Artista</label>
-            <input type="artista" id="artista" v-model="artista" class="input input-bordered bg-accent w-full text-white">
-          </div>
-          <div class="mb-4">
-            <label for="date" class="block text-white font-bold text-sm mb-2">Data De Lançamento</label>
-            <input type="date" id="date" v-model="date" class="input input-bordered bg-accent w-full text-white">
-          </div>
-          <div class="mb-4">
-            <label for="imageUrl" class="block text-white font-bold text-sm mb-2">URL da Imagem:</label>
-            <input type="url" id="imageUrl" v-model="imageUrl" @change="atualizarImagem()" class="input input-bordered bg-accent w-full text-white">
-          </div>
-          
-          <div class="mb-4">
-            <label for="url" class="block text-white font-bold text-sm mb-2">URL do Audio:</label>
-            <input type="url" id="url" v-model="url" class="text-white input input-bordered w-full bg-accent">
-          </div>
-
-          <div class="mb-4">
-            <label for="tags" class="block text-white font-bold text-sm mb-2">Tags da Música</label>
-              <MultiSelect v-model="selectedTags" :options="allTags" filter optionLabel="name" selectedItemsLabel="{0} tags selecionadas" :maxSelectedLabels="3" class="w-full md:w-20rem input input-bordered bg-accent text-white" />
-          </div>
-
-          <button type="submit" class="btn btn-primary w-full">Enviar Música</button>
-          
-          <div v-if="success" class="divider"></div>
-          <Success v-if="success" :sucess-message="successMessage"/>
-          <Error v-if="error" :error-message="errorMessage"/>
-
-          <Loading v-if="loading"/>
-        </form>
+        
       </div>
-
-      <div v-else>
-        Você não pode acessar essa página, <nuxt-link to="/" class="underline">Faça Login</nuxt-link>
-      </div>
-    </div>
-</section>
+  </section>
+  </div>
+  <div v-else>
+    Você não pode acessar essa página, <nuxt-link to="/" class="underline">Faça Login</nuxt-link>
+  </div>
 </template>
 
 <script lang="ts">
 import type { Music, Tags } from '~/interfaces/apiRef';
 import MultiSelect from 'primevue/multiselect';
-
+import { storage, FireRef, uploadBytes, getDownloadURL } from '~/composables/firebase'
 
 export default {
     data() {
@@ -103,7 +107,8 @@ export default {
             errorMessage: "",
             loading: false,
             tagsIds: [] as Number[],
-            picImg: ""
+            picImg: "",
+            audioFile: null as unknown as File,
         };
     },
     beforeMount() {
@@ -116,44 +121,83 @@ export default {
     },
     methods: {
       async enviarMusica() {
+        console.log(storage)
         this.loading = true;
-        try {
-          if (this.selectedTags && this.selectedTags.length > 0) {
-            this.tagsIds = this.selectedTags.map((tag: { code: number; }) => tag.code);
-          }
+        if(!this.verificaCampos()) return;
+        else {
+          try {
+            if (!this.imageUrl) {
+              this.loading = false;
+              this.error = true;
+              this.errorMessage = "Selecione uma imagem antes de enviar a música.";
+              return;
+            }
 
-          const response = await fetch("https://starting-music.onrender.com/music/create", {
-            method: "POST",
-            headers: new Headers({
-              "Content-Type": "application/json",
-              "Authorization": this.jwtToken || ""
-            }),
-            body: JSON.stringify({
-              nome: this.nome,
-              artista: this.artista,
-              url: this.url,
-              imageUrl: this.imageUrl,
-              duracao: this.duracao,
-              tags: this.tagsIds,
-              data_lanc: this.date,
-              artistaId: [parseInt(this.userID)],
-            })
-          });
+            const imageRef = FireRef(storage, `images/${this.nome}-${Date.now()}`);
+            const imageSnapshot = await uploadBytes(imageRef, this.dataURLtoBlob(this.imageUrl));
+            const imageUrl = await getDownloadURL(imageSnapshot.ref);
 
-          if (response.ok) {
-            this.loading = false;
-            this.success = true;
-            this.successMessage = "Música Enviada!";
-          } else {
+            if (!this.audioFile) {
+              this.loading = false;
+              this.error = true;
+              this.errorMessage = "Selecione um arquivo de áudio antes de enviar a música.";
+              return;
+            }
+
+            const audioRef = FireRef(storage, `audio/${this.nome}-${Date.now()}`);
+            const audioSnapshot = await uploadBytes(audioRef, this.audioFile);
+            const audioUrl = await getDownloadURL(audioSnapshot.ref);
+
+            if (this.selectedTags && this.selectedTags.length > 0) {
+              this.tagsIds = this.selectedTags.map((tag: { code: number; }) => tag.code);
+            }
+
+            const response = await fetch("https://starting-music.onrender.com/music/create", {
+              method: "POST",
+              headers: new Headers({
+                "Content-Type": "application/json",
+                "Authorization": this.jwtToken || ""
+              }),
+              body: JSON.stringify({
+                nome: this.nome,
+                artista: this.artista,
+                duracao: this.duracao,
+                artistaId: [parseInt(this.userID)],
+                tags: this.tagsIds,
+                songUrl: audioUrl,
+                imageUrl: imageUrl,
+                data_lanc: this.date,
+                
+              })
+            });
+
+            if (response.ok) {
+              this.loading = false;
+              this.success = true;
+              this.error = false;
+              this.successMessage = "Música Enviada!";
+              
+            } else {
+              this.loading = false;
+              this.error = true;
+              this.errorMessage = "Ocorreu um erro, verifique se enviou todos os campos!";
+            }
+          } catch (error) {
             this.loading = false;
             this.error = true;
-            this.errorMessage = "Ocorreu um erro, verifique se enviou todos os campos!";
+            this.errorMessage = "Ocorreu um erro no servidor!";
+            console.log(error.message);
           }
-        } catch (error) {
-          this.loading = false;
+        }
+      },
+      verificaCampos() {
+        if (!this.date || !this.nome || !this.artista ) {
           this.error = true;
-          this.errorMessage = "Ocorreu um erro no servidor!";
-          console.log(error.message);
+          this.errorMessage = "Você precisa enviar todos campos!";
+          this.loading = false;
+          return false;
+        } else {
+          return true
         }
       },
       async fetchTags() {
@@ -177,8 +221,21 @@ export default {
               console.error("Erro durante a busca de tags:", error.message);
           }
       },
-      atualizarImagem() {
-        this.picImg = this.imageUrl;
+      atualizarImagem(event: Event) {
+        const imageFile = (event.target as HTMLInputElement).files?.[0];
+        const imageReader = new FileReader();
+        imageReader.onloadend = () => {
+          this.imageUrl = imageReader.result as string;
+        };
+        if (imageFile) {
+          imageReader.readAsDataURL(imageFile);
+        }
+      },
+      atualizarAudio(event: Event) {
+        const audioFile = (event.target as HTMLInputElement).files?.[0];
+        if (audioFile) {
+          this.audioFile = audioFile;
+        }
       },
       getImage(imageUrl: string, type: string) {
         if (!imageUrl || imageUrl === "null" || imageUrl === undefined || imageUrl === "") {
@@ -202,12 +259,23 @@ export default {
         this.userPic = "";
         this.picImg = "";
       },
+      dataURLtoBlob(dataURL: string) {
+        const arr = dataURL.split(',');
+        const mimeMatch = arr[0]?.match(/:(.*?);/);
+        const mime = mimeMatch ? mimeMatch[1] : '';
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], { type: mime });
+      },
     },
     async mounted() {
       await this.fetchTags();
       this.artista = this.userNome;
     },
-    
     components: {
       MultiSelect
     }
