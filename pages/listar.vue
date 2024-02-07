@@ -10,7 +10,8 @@
         <div v-if="musics && musics.length > 0" class="mt-5 flex flex-wrap justify-center" :class="{'overflow-hidden fixed': isEditing}">
           <div v-for="music in musics" :key="music.id" class="mt-3 p-3 bg-secondary md:w-1/2 xl:w-1/3 md:m-3 w-full rounded-md">
             <div class="flex items-center justify-between flex-wrap md:flex-nowrap">
-              <img :src="getMusicImage(music.image_url)" :alt="music.nome" class="object-cover object-center h-20 w-20 mt-3 rounded-md mr-5">
+              <img v-show="music.loadingBtn" @load="music.loadingBtn = true"  :src="getMusicImage(music.image_url)" :alt="music.nome" class="object-cover object-center h-20 w-20 mt-3 rounded-md mr-5">
+              <div v-if="!music.loadingBtn" class="loading loading-spinner h-14 w-14 mt-3 mr-5"></div>
               <div class="flex flex-col">
                 <h3 class="text-xl font-bold">{{ music.nome }}</h3>
                 <p class="text-gray-400 font-bold">{{ music.artista }}</p>
