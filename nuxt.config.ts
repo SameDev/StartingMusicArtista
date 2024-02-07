@@ -11,18 +11,7 @@ export default defineNuxtConfig({
     '@fortawesome/fontawesome-svg-core/styles.css',
     'primevue/resources/themes/aura-dark-purple/theme.css',
   ],
-  image: {
-    provider: "ipx",
-    presets: {
-      default: {
-        modifiers: {
-          format: "webp",
-          loading: "lazy",
-          quality: 100
-        }
-      }
-    }
-  },
+  image: {},
   app: {
     head: {
       charset: 'utf-8',
