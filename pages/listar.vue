@@ -7,24 +7,21 @@
         <div class="w-full text-end">
           <nuxt-link to="enviar-musica" class="btn btn-success font-bold uppercase text-white shadow-sm"><font-awesome-icon :icon="['fas', 'plus']" /> Adicionar Nova Música</nuxt-link>
         </div>
-        <div v-if="musics && musics.length > 0" class="mt-5 flex flex-wrap justify-center"  :class="{'overflow-hidden fixed': isEditing}">
-          <div v-for="music in musics" :key="music.id" class="mt-3 p-3 bg-secondary md:w-1/3 md:m-3 w-full  rounded-md" >
-            <div class="flex items-center justify-between flex-wrap">
-              <div class="flex items-center flex-wrap">
-                <img :src="getMusicImage(music.image_url)" :alt="music.nome" class="object-cover object-center h-20 w-20 mt-3 rounded-md mr-5">
-                <div>
-                  <h3 class="text-xl font-bold">{{ music.nome }}</h3>
-                  <p class="text-gray-400 font-bold">{{ music.artista }}</p>
-                  <div class="tags inline-block">
-                    <span class="badge badge-accent badge-outline" v-for="tag in music.tags" :key="tag.id">{{ tag.nome }}</span>
-                  </div>
+        <div v-if="musics && musics.length > 0" class="mt-5 flex flex-wrap justify-center" :class="{'overflow-hidden fixed': isEditing}">
+          <div v-for="music in musics" :key="music.id" class="mt-3 p-3 bg-secondary md:w-1/2 xl:w-1/3 md:m-3 w-full rounded-md">
+            <div class="flex items-center justify-between flex-wrap md:flex-nowrap">
+              <img :src="getMusicImage(music.image_url)" :alt="music.nome" class="object-cover object-center h-20 w-20 mt-3 rounded-md mr-5">
+              <div class="flex flex-col">
+                <h3 class="text-xl font-bold">{{ music.nome }}</h3>
+                <p class="text-gray-400 font-bold">{{ music.artista }}</p>
+                <div class="tags inline-block">
+                  <span class="badge badge-accent badge-outline" v-for="tag in music.tags" :key="tag.id">{{ tag.nome }}</span>
                 </div>
               </div>
-              <div class="flex items-center md:m-0 mt-6">
+              <div class="flex items-center md:justify-end mt-6 md:m-0">
                 <button @click="openEditModal(music)" class="btn btn-success mr-1 text-white">
                   <font-awesome-icon :icon="['fas', 'pen']" />
                 </button>
-                
                 <div class="aaaaaaa">
                   <button @click="openExcluirModal(music)" :id="'my_modal_' + music.id" class="btn btn-error text-white">
                     <font-awesome-icon :icon="['fas', 'trash']" />
@@ -35,9 +32,6 @@
                     @confirmarExclusao="handleConfirmarExclusao"
                   />
                 </div>
-
-                
-                
               </div>
             </div>
           </div>
