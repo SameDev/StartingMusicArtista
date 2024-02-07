@@ -61,10 +61,10 @@
 
 
       <div class="w-[49%] h-1/4 bg-accent rounded-lg shadow-md mr-7 box-container"></div>
-      <div class="w-[49%] h-1/4 bg-accent rounded-lg shadow-md box-container p-5 flex align-center items-center flex-wrap" >
+      <div class="w-[49%] lg:h-1/4 bg-accent rounded-lg shadow-md box-container p-5 flex align-center items-center flex-wrap" >
         <h2 class="text-xl text-center text-base-100 w-full font-bold md:-mb-5">Destaque</h2>
-        <div class="flex items-center align-center">
-          <div class="avatar">
+        <div class="flex items-center align-center xl:flex-nowrap flex-wrap">
+          <div class="avatar md:w-auto w-full text-center items-center justify-center">
             <div class="w-24 rounded-full shadow-md">
               <nuxtImg src="/user-placeholder.jpeg" />
             </div>
