@@ -58,7 +58,7 @@ export default {
   setup() {
     const isSidebarOpen = ref(false);
     const closeModalBtn = ref(false)
-    const userCargo = localStorage.getItem('userCargo') || '';
+    const userCargo = "";
 
     const toggleSidebar = () => {
       isSidebarOpen.value = !isSidebarOpen.value;
@@ -77,6 +77,10 @@ export default {
     onBeforeMount(() => {
       window.addEventListener('resize', handleResize);
       handleResize();
+
+      if (process.client) {
+        localStorage.getItem('userCargo') || '';
+      }
     });
 
     onBeforeUnmount(() => {

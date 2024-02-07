@@ -55,7 +55,7 @@ export default {
       userTags: [] as Tags[],
       userName: "Você não tem nome?",
       userDesc: "Adicione uma descrição de impacto para seus ouvintes entenderem bem quem você é!",
-      userId: localStorage.getItem("userId") || "",
+      userId: "",
       userCargo: "",
       userEmail: "",
       loadingImg: true,
@@ -63,6 +63,7 @@ export default {
       banner: true,
     };
   },
+  
   beforeMount() {
     if (process.client) {
       this.userEmail = localStorage.getItem("userEmail") || "";
@@ -70,8 +71,10 @@ export default {
       this.userName = localStorage.getItem("userNome") || "";
       this.userCargo = localStorage.getItem("userCargo") || "";
       this.userBanner = localStorage.getItem("userBanner") || "";
+      this.userId = localStorage.getItem("userId") || "";
       this.userTags = JSON.parse(localStorage.getItem("userTags") || "[]") as Tags[]
     }
+
     const cookieToken = useCookie("jwtToken");
     this.jwtToken = cookieToken.value as string;
 

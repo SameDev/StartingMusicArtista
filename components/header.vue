@@ -33,9 +33,16 @@
 export default {
     data() {
         return {
-            userPic: localStorage.getItem("userPic") || "",
-            userNome: localStorage.getItem("userNome") || "",
-            userCargo: localStorage.getItem("userCargo") || ""
+            userPic: "",
+            userNome: "",
+            userCargo: ""
+        }
+    },
+    beforeMount() {
+        if (process.client) {
+            this.userPic = localStorage.getItem("userPic") || ""
+            this.userNome = localStorage.getItem("userNome") || ""
+            this.userCargo = localStorage.getItem("userCargo") || ""
         }
     },
     methods: {

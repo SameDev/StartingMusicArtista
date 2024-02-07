@@ -73,7 +73,7 @@ export default {
       isEditing: false, 
       selectedMusic: null as unknown as Music,
       isRemoving: false,
-      audioPlayer: new Audio(),
+      audioPlayer: null as unknown as HTMLAudioElement,
       currentPlayingMusic: null as unknown as Music | null,
     };
   },
@@ -82,6 +82,10 @@ export default {
     this.jwtToken = cookieToken.value as string;
 
     this.fetchSongs();
+
+    if (process.client) {
+      this.audioPlayer = new Audio();
+    }
   },
   methods: {
     async fetchSongs() {
