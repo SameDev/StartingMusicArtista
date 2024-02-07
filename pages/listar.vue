@@ -19,6 +19,10 @@
                 </div>
               </div>
               <div class="flex items-center md:justify-end mt-6 md:m-0">
+                <button @click="playAudio(music)" class="btn btn-info text-white mx-1">
+                  <font-awesome-icon v-if="!music.isPlaying" :icon="['fas', 'play']" />
+                  <font-awesome-icon v-else :icon="['fas', 'pause']" />
+                </button>
                 <button @click="openEditModal(music)" class="btn btn-success mr-1 text-white">
                   <font-awesome-icon :icon="['fas', 'pen']" />
                 </button>
@@ -61,7 +65,6 @@
 
 
 <script lang="ts">
-import type { Button } from "#build/components";
 import { type Music } from "../interfaces/apiRef";
 
 
@@ -74,6 +77,7 @@ export default {
       isEditing: false, 
       selectedMusic: null as unknown as Music,
       isRemoving: false,
+      audioPlayer: new Audio(),
     };
   },
   beforeMount() {
@@ -91,7 +95,7 @@ export default {
         if (response.ok) {
           this.loading = false;
           const data = await response.json();
-          const songs: Music[] = data.map((music: Music) => ({ ...music, loadingBtn: false }));
+          const songs: Music[] = data.map((music: Music) => ({ ...music, loadingBtn: false, isPlaying: false }));
           this.musics = songs;
         } else {
           console.error("Erro ao obter músicas da API:", response.statusText);
@@ -180,6 +184,16 @@ export default {
       this.deleteMusic(musicId);
       this.selectedMusic = null as unknown as Music;
       this.isRemoving = false;
+    },
+    playAudio(music:Music) {
+      if (music.isPlaying == true) {
+        this.audioPlayer.pause()
+        music.isPlaying = false;
+        return;
+      }
+      music.isPlaying = true
+      this.audioPlayer.src = music.url;
+      this.audioPlayer.play();
     },
   },
 };

@@ -8,6 +8,7 @@ export interface Music {
   artistaId: string[];
   loadingBtn: boolean;
   data_lanc: Date;
+  isPlaying: boolean
 }
 
 export interface User {
