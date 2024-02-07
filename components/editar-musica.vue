@@ -45,11 +45,11 @@
           </div>
 
           <div class="mb-4">
-            <label for="tags" class="block text-white font-bold text-sm mb-2 font-roboto-500">Tags da Música</label>
-              <MultiSelect v-model="selectedTags" :options="allTags" filter optionLabel="name" selectedItemsLabel="{0} tags selecionadas" :maxSelectedLabels="3" class="w-full md:w-20rem input input-bordered bg-accent text-white" />
+            <span class="block text-white font-bold text-sm mb-2 font-roboto-500">Tags da Música</span>
+            <MultiSelect id="tags" v-model="selectedTags" :options="allTags" filter optionLabel="name" selectedItemsLabel="{0} tags selecionadas" :maxSelectedLabels="3" class="w-full md:w-20rem input input-bordered bg-accent text-white" />
           </div>
 
-          <button type="submit" class="btn btn-primary w-full">Salvar Alterações</button>
+          <button type="submit" id="submit" class="btn btn-primary w-full">Salvar Alterações</button>
           
           <div v-if="success" class="divider"></div> 
           <Success v-if="success" :sucess-message="successMessage"/>

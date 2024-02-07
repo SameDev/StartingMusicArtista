@@ -51,19 +51,27 @@ export default {
       jwtToken: "",
       isEditing: false, 
       isRemoving: false,
-      userPic: localStorage.getItem("userPic") || "",
-      userTags: JSON.parse(localStorage.getItem("userTags") || "[]") as Tags[],
-      userName: localStorage.getItem("userNome") || "Você não tem nome?",
-      userDesc: localStorage.getItem("userDesc") || "Adicione uma descrição de impacto para seus ouvintes entenderem bem quem você é!",
+      userPic: "",
+      userTags: [] as Tags[],
+      userName: "Você não tem nome?",
+      userDesc: "Adicione uma descrição de impacto para seus ouvintes entenderem bem quem você é!",
       userId: localStorage.getItem("userId") || "",
-      userCargo: localStorage.getItem("userCargo"),
-      userEmail: localStorage.getItem("userEmail"),
+      userCargo: "",
+      userEmail: "",
       loadingImg: true,
-      userBanner: localStorage.getItem("userBanner") || "",
+      userBanner: "",
       banner: true,
     };
   },
   beforeMount() {
+    if (process.client) {
+      this.userEmail = localStorage.getItem("userEmail") || "";
+      this.userPic = localStorage.getItem("userPic") || "";
+      this.userName = localStorage.getItem("userNome") || "";
+      this.userCargo = localStorage.getItem("userCargo") || "";
+      this.userBanner = localStorage.getItem("userBanner") || "";
+      this.userTags = JSON.parse(localStorage.getItem("userTags") || "[]") as Tags[]
+    }
     const cookieToken = useCookie("jwtToken");
     this.jwtToken = cookieToken.value as string;
 

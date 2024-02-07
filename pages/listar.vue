@@ -21,7 +21,7 @@
               <div class="flex items-center md:justify-end mt-6 md:m-0">
                 <button @click="playAudio(music)" class="btn btn-info text-white mx-1">
                   <font-awesome-icon v-if="!music.isPlaying" :icon="['fas', 'play']" />
-                  <font-awesome-icon v-else :icon="['fas', 'pause']" />
+                  <font-awesome-icon v-else :icon="['fas', 'pause']" class="ml-0.5" />
                 </button>
                 <button @click="openEditModal(music)" class="btn btn-success mr-1 text-white">
                   <font-awesome-icon :icon="['fas', 'pen']" />
@@ -40,8 +40,6 @@
             </div>
           </div>
         </div>
-
-        
 
         <div v-else-if="!loading">
           Nenhuma música encontrada.
@@ -63,10 +61,8 @@
   </div>
 </template>
 
-
 <script lang="ts">
 import { type Music } from "../interfaces/apiRef";
-
 
 export default {
   data() {
@@ -78,6 +74,7 @@ export default {
       selectedMusic: null as unknown as Music,
       isRemoving: false,
       audioPlayer: new Audio(),
+      currentPlayingMusic: null as unknown as Music | null,
     };
   },
   beforeMount() {
@@ -108,10 +105,8 @@ export default {
       if (!imageUrl || imageUrl === "null" || imageUrl === undefined || imageUrl === "") {
         return "/img-placeholder.png";
       }
-
       return imageUrl;
     },
-
     async deleteMusic(musicId: number) {
       const musicIndex = this.musics.findIndex((music) => music.id === musicId);
       if (musicIndex !== -1) {
@@ -162,7 +157,6 @@ export default {
         const updatedMusics = [...this.musics];
         updatedMusics[musicIndex] = editedMusic;
         this.musics = updatedMusics;
-        
         this.$router.push('/listar').then(() => window.location.reload());
       }
 
@@ -174,27 +168,46 @@ export default {
       this.selectedMusic = music;
       this.isRemoving = true;
     },
-    
     handleCloseExcluirModal() {
       this.selectedMusic = null as unknown as Music;
       this.isRemoving = false;
     },
-
     handleConfirmarExclusao(musicId: number) {
       this.deleteMusic(musicId);
       this.selectedMusic = null as unknown as Music;
       this.isRemoving = false;
     },
-    playAudio(music:Music) {
-      if (music.isPlaying == true) {
-        this.audioPlayer.pause()
-        music.isPlaying = false;
-        return;
+    playAudio(music: Music) {
+      if (this.currentPlayingMusic && this.currentPlayingMusic !== music) {
+        this.currentPlayingMusic.isPlaying = false;
+        this.audioPlayer.pause();
+        this.audioPlayer.currentTime = 0; // Reseta o áudio para o início
       }
-      music.isPlaying = true
-      this.audioPlayer.src = music.url;
-      this.audioPlayer.play();
-    },
+
+      if (music.isPlaying) {
+        music.isPlaying = false;
+        this.audioPlayer.pause();
+      } else {
+        music.isPlaying = true;
+        this.audioPlayer.src = music.url;
+
+        const playPromise = this.audioPlayer.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              // Automatic playback started!
+              // Show playing UI.
+            })
+            .catch(error => {
+              // Auto-play was prevented
+              // Show paused UI.
+              console.error('Playback was prevented:', error);
+            });
+        }
+      }
+
+      this.currentPlayingMusic = music;
+},
   },
 };
 </script>

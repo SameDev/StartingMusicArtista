@@ -84,40 +84,48 @@ import MultiSelect from 'primevue/multiselect';
 import { storage, FireRef, uploadBytes, getDownloadURL } from '~/composables/firebase';
 
 export default {
-    data() {
-        return {
-            jwtToken: "" as string,
-            userEmail: localStorage.getItem("userEmail") || "",
-            userPic: localStorage.getItem("userPic") || "",
-            userNome: localStorage.getItem("userNome") || "",
-            userID: localStorage.getItem("userID") || "",
-            userCargo: localStorage.getItem("userCargo") || "",
-            nome: "",
-            artista: "",
-            url: "",
-            imageUrl: "",
-            duracao: "",
-            date: "" as unknown as Date, 
-            tags: [] as Tags[],
-            selectedTags: ref(), 
-            allTags: [] as Tags[],
-            success: false,
-            successMessage: "",
-            error: false,
-            errorMessage: "",
-            loading: false,
-            tagsIds: [] as Number[],
-            picImg: "",
-            audioFile: null as unknown as File,
-        };
-    },
-    beforeMount() {
-      const cookieToken = useCookie("jwtToken");
-      this.jwtToken = cookieToken.value as string;
+  data() {
+    return {
+        jwtToken: "",
+        userEmail: "",
+        userPic: "",
+        userNome: "",
+        userID: "",
+        userCargo: "",
+        nome: "",
+        artista: "",
+        url: "",
+        imageUrl: "",
+        duracao: "",
+        date: null as unknown as Date,
+        tags: [] as Tags[],
+        selectedTags: ref(), 
+        allTags: [] as Tags[],
+        success: false,
+        successMessage: "",
+        error: false,
+        errorMessage: "",
+        loading: false,
+        tagsIds: [] as Number[],
+        picImg: "",
+        audioFile: null as unknown as File,
+    };
+},
+beforeMount() {
+    if (process.client) {
+        const cookieToken = useCookie("jwtToken");
+        this.jwtToken = cookieToken.value as string;
 
-      this.date = new Date()
-      this.date = this.date.toISOString().split("T")[0] as unknown as Date
-    },
+        this.date = new Date() as unknown as Date
+        this.date = this.date.toISOString().split("T")[0] as unknown as Date;
+
+        this.userEmail = localStorage.getItem("userEmail") || "";
+        this.userPic = localStorage.getItem("userPic") || "";
+        this.userNome = localStorage.getItem("userNome") || "";
+        this.userID = localStorage.getItem("userID") || "";
+        this.userCargo = localStorage.getItem("userCargo") || "";
+    }
+},
     methods: {
       async enviarMusica() {
         this.loading = true;

@@ -93,9 +93,9 @@ import { type Music } from '~/interfaces/apiRef';
 export default {
   data() {
     return {
-      userNome: localStorage.getItem("userNome") || "",
-      userPic: localStorage.getItem("userPic") || "",
-      userCargo: localStorage.getItem("userCargo") || "",
+      userNome: "",
+      userPic: "",
+      userCargo: "",
       musics: [] as Music[],
       loading: false,
       isLogged: false,
@@ -105,10 +105,17 @@ export default {
     }
   },
   beforeMount() {
-    const cookieToken = useCookie("jwtToken");
-    this.jwtToken = cookieToken.value as string;
+    if (process.client) {
+      this.userPic = localStorage.getItem("userPic") || "";
+      this.userNome = localStorage.getItem("userNome") || "";
+      this.userCargo = localStorage.getItem("userCargo") || "";
 
-    this.fetchSongs(); 
+      const cookieToken = useCookie("jwtToken");
+      this.jwtToken = cookieToken.value as string;
+
+      this.fetchSongs(); 
+    }
+    
   },
   methods: {
     getMusicImage(imageSrc: string): string {
