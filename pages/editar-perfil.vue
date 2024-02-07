@@ -1,11 +1,16 @@
 <template>
-  <div v-if="isLogged" class="overflow-x-hidden">
+  <div class="overflow-x-hidden">
     <Sidebar />
     <section class="2xl:ml-[17%] px-10 py-5">
       <Header page="Editar Perfil" icon="user-pen"></Header>
-      <div class="card card-compact w-full bg-base-200 shadow-xl relative">
-        <figure class="w-full shadow-inner"><nuxtImg class="w-full" src="/banner.jpg" /></figure>
-        <div class="avatar absolute md:bottom-48 bottom-56 left-1 shadow-2xl">
+      <div class="z-0 card card-compact w-full bg-base-200 shadow-xl relative">
+        <figure class="w-full shadow-inner h-[400px]">
+          <img class="w-full h-full object-cover object-center " @error="banner = false" @load="loadingImg = false" v-if="banner" :src="userBanner" :alt="'Banner de perfil de '+userName">
+          <nuxtImg v-if="!banner" @error="loadingImg = true"  @load="loadingImg = false" class="w-full" src="/banner.jpg" />
+          <div v-if="loadingImg == true" class="artboard artboard-horizontal phone-6">1024×320</div>
+        </figure>
+        
+        <div class="avatar absolute md:bottom-60 bottom-96 left-1 shadow-2xl">
           <div class="w-24 rounded-full shadow-2xl">
             <img :src="getUserImage(userPic)" />
           </div>
@@ -13,6 +18,7 @@
 
         <div class="card-body mt-12">
           <h2 class="card-title text-5xl font-nunit font-bold text-white">{{ userName }}</h2>
+          <h2 class="card-desc text-lg font-nunit font-bold text-accent">{{ userEmail }}</h2>
           <p class="card-desc">{{ userDesc }}</p>
           <div class="tags inline-block">
             <span class="badge badge-accent badge-outline" v-for="tag in userTags" :key="tag.id">{{ tag.nome }}</span>
@@ -23,32 +29,38 @@
         </div>
       </div>
 
-      <EditarPerfilModal :user-id="userId" :user-nome="userName" :user-desc="userDesc" :user-pic="userPic" :user-tags="userTags" @perfil-editado="atualizarPerfil" :jwt-token="jwtToken" />
+      <EditarPerfilModal 
+      v-if="isEditing"
+      :jwt-token="jwtToken"
+      @perfil-editado="handlePerfil"
+      @fechar-modal="handleCloseEditModal"/>
 
     </section>
 
   </div>
-  <span class="container justify-center items-center content-center bg-secondary w-full p-7 m-10 rounded-md font-nunito block" v-else>
-    Você não pode acessar essa página, <nuxt-link to="/" class="underline">Faça Login</nuxt-link>
-  </span>
 </template>
 
 <script lang="ts" >
 import type { Tags } from '~/interfaces/apiRef';
+
 
 export default {
   data() {
     return {
       loading: false,
       jwtToken: "",
-      isLogged: false,
       isEditing: false, 
       isRemoving: false,
       userPic: localStorage.getItem("userPic") || "",
       userTags: JSON.parse(localStorage.getItem("userTags") || "[]") as Tags[],
       userName: localStorage.getItem("userNome") || "Você não tem nome?",
       userDesc: localStorage.getItem("userDesc") || "Adicione uma descrição de impacto para seus ouvintes entenderem bem quem você é!",
-      userId: localStorage.getItem("userId") || ""
+      userId: localStorage.getItem("userId") || "",
+      userCargo: localStorage.getItem("userCargo"),
+      userEmail: localStorage.getItem("userEmail"),
+      loadingImg: true,
+      userBanner: localStorage.getItem("userBanner") || "",
+      banner: true,
     };
   },
   beforeMount() {
@@ -57,10 +69,6 @@ export default {
 
     if(!this.userDesc || this.userDesc == "null") {
       this.userDesc = "Adicione uma descrição de impacto para seus ouvintes entenderem bem quem você é!";
-    }
-
-    if (this.jwtToken || this.jwtToken != "") {
-      this.isLogged = true;
     }
   },
   methods: {
@@ -79,15 +87,14 @@ export default {
       return imageSrc;
     },
     openEditModal() {
-      // Lógica para abrir a modal de edição
-      // Pode incluir um evento de emitir ou um método para mostrar a modal
-      console.log("Abrir modal de edição");
+      this.isEditing = true;
     },
-    atualizarPerfil(novoPerfil: object) {
-      // Lógica para atualizar dados do usuário após a edição na modal
-      console.log("Perfil atualizado:", novoPerfil);
-      // Atualize os dados conforme necessário
+    handleCloseEditModal() {
+      this.isEditing = false;
     },
+    handlePerfil() {
+      this.$router.push('/editar-perfil').then(() => window.location.reload());
+    }
   }
 }
 

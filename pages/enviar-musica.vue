@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isLogged" class="overflow-x-hidden">
+  <div class="overflow-x-hidden">
     <Sidebar></Sidebar>
     <section class="2xl:ml-[17%] px-10 py-5">
       <Header page="Enviar Música" icon="music"></Header>
@@ -7,7 +7,11 @@
         <div >
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center text-2xl">
-              <img class="w-20 h-20 mr-4 rounded-full" :src="getImage(userPic, 'user')" :alt="'Foto de perfil de '+userNome" />
+              <div class="avatar mr-2 shadow-2xl">
+                <div class="w-24 rounded-full shadow-2xl">
+                  <img :src="getImage(userPic, 'user')" />
+                </div>
+              </div>
               <div>
                 <h2 class="font-bold font-roboto text-md">{{ userNome }}</h2>
                 <h2 class="font-roboto text-sm font-medium text-accent">{{ userCargo }}</h2>
@@ -72,20 +76,16 @@
       </div>
   </section>
   </div>
-  <div v-else>
-    Você não pode acessar essa página, <nuxt-link to="/" class="underline">Faça Login</nuxt-link>
-  </div>
 </template>
 
 <script lang="ts">
 import type { Music, Tags } from '~/interfaces/apiRef';
 import MultiSelect from 'primevue/multiselect';
-import { storage, FireRef, uploadBytes, getDownloadURL } from '~/composables/firebase'
+import { storage, FireRef, uploadBytes, getDownloadURL } from '~/composables/firebase';
 
 export default {
     data() {
         return {
-            isLogged: false,
             jwtToken: "" as string,
             userEmail: localStorage.getItem("userEmail") || "",
             userPic: localStorage.getItem("userPic") || "",
@@ -115,9 +115,8 @@ export default {
       const cookieToken = useCookie("jwtToken");
       this.jwtToken = cookieToken.value as string;
 
-      if(this.jwtToken || this.jwtToken != '') {
-        this.isLogged = true;
-      }
+      this.date = new Date()
+      this.date = this.date.toISOString().split("T")[0] as unknown as Date
     },
     methods: {
       async enviarMusica() {

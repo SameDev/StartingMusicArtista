@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Dashboard v-if="isLogged" />
+    <Dashboard v-if="isLoggedIn" />
     <Login v-else />
   </div>
 </template>
@@ -20,7 +20,7 @@ export default {
     this.jwtToken = cookieToken.value as string;
   },
   computed: {
-    isLogged() {
+    isLoggedIn() {
       return !!this.jwtToken;
     },
   },
@@ -28,5 +28,6 @@ export default {
     Login,
     Dashboard,
   },
+  middleware: 'auth',
 };
 </script>

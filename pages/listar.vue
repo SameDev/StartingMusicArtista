@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isLogged" class="overflow-x-hidden">
+  <div class="overflow-x-hidden">
     <Sidebar/>
     <section class="2xl:ml-[17%] px-10 py-5">
       <Header page="Lista de Músicas" icon="headphones"></Header>
@@ -63,9 +63,6 @@
     </section>
     
   </div>
-  <span class="container justify-center items-center content-center bg-secondary w-full p-7 m-10 rounded-md font-nunito block" v-else>
-    Você não pode acessar essa página, <nuxt-link to="/" class="underline">Faça Login</nuxt-link>
-  </span>
 </template>
 
 
@@ -80,7 +77,6 @@ export default {
       musics: [] as Music[],
       loading: false,
       jwtToken: "",
-      isLogged: false,
       isEditing: false, 
       selectedMusic: null as unknown as Music,
       isRemoving: false,
@@ -90,10 +86,7 @@ export default {
     const cookieToken = useCookie("jwtToken");
     this.jwtToken = cookieToken.value as string;
 
-    if (this.jwtToken || this.jwtToken != "") {
-      this.isLogged = true;
-      this.fetchSongs();
-    }
+    this.fetchSongs();
   },
   methods: {
     async fetchSongs() {

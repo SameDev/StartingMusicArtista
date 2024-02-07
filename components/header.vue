@@ -10,11 +10,15 @@
                 <h2 class="font-roboto text-sm font-medium text-accent">{{ userCargo }}</h2>
             </div>
             <div class="dropdown dropdown-hover dropdown-end 2xl:mr-0 mr-12">
-                <img tabindex="0" role="button" :src="getUserImage(userPic)" :alt="userNome+' | Imagem do artista'" class="h-16 w-16 rounded-full">
+                <div tabindex="0" role="button" class="avatar mr-2 shadow-2xl">
+                    <div class="w-16 rounded-full shadow-2xl">
+                        <img :src="getUserImage(userPic)" :alt="userNome+' | Imagem do artista'" />
+                    </div>
+                </div>
                 <ul tabindex="0" class="dropdown-content z-[1] menu shadow p-0 bg-secondary rounded-md w-52">
-                    <li><div class="cursor-pointer">
+                    <li><nuxt-link to="/editar-perfil" class="cursor-pointer">
                         <font-awesome-icon :icon="['fas', 'user-gear']" /> Configurar perfil
-                    </div></li>
+                    </nuxt-link></li>
                     <li><div class="cursor-pointer" @click="loggout">
                         <font-awesome-icon :icon="['fas', 'user-xmark']" /> Sair
                     </div></li>

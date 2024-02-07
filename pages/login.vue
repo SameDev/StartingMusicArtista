@@ -42,7 +42,6 @@
 const api_url = "https://starting-music.onrender.com/user/login/";
 
 
-
 export default {
   data() {
     return {
@@ -113,7 +112,7 @@ export default {
         })
         .then(data => {
           if (data.user) {
-            const { id, email, nome, cargo, foto_perfil, tags, desc, data_nasc } = data.user;
+            const { id, email, nome, cargo, foto_perfil, tags, desc, data_nasc, banner_perfil } = data.user;
             if (cargo === "USUARIO") {
               this.envio = false;
               this.error = true;
@@ -129,6 +128,7 @@ export default {
             localStorage.setItem('userTags', JSON.stringify(tags) || "[]");
             localStorage.setItem('userDesc', desc);
             localStorage.setItem('userNasc', data_nasc)
+            localStorage.setItem('userBanner', banner_perfil)
 
           
             this.error = false;

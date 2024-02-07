@@ -1,5 +1,5 @@
 <template>
- <div class="dashboard overflow-x-hidden" v-if="isLogged">
+ <div class="dashboard overflow-x-hidden">
   <Sidebar/>
   <section class="2xl:ml-[17%] px-10 py-5">
     <Header page="Página Principal" icon="house"></Header>
@@ -61,13 +61,30 @@
 
 
       <div class="w-[49%] h-1/4 bg-accent rounded-lg shadow-md mr-7 box-container"></div>
-      <div class="w-[49%] h-1/4 bg-accent rounded-lg shadow-md box-container" ></div>
+      <div class="w-[49%] h-1/4 bg-accent rounded-lg shadow-md box-container p-5 flex align-center items-center flex-wrap" >
+        <h2 class="text-xl text-center text-base-100 w-full font-bold md:-mb-5">Destaque</h2>
+        <div class="flex items-center align-center">
+          <div class="avatar">
+            <div class="w-24 rounded-full shadow-md">
+              <nuxtImg src="/user-placeholder.jpeg" />
+            </div>
+          </div>
+          <div class=" ml-5">
+            <h2 class="text-xl text-base-100 font-bold">Seu Fã</h2>
+            <p class="text-lg text-base-100">
+              Olá, {{ userNome }} gosto muito do seu trabalho! Continue fazendo músicas incriveis!
+            </p>
+            <div class="text-white cursor-pointer font-bold bg-error p-2 rounded-xl md:w-[10%] flex text-center justify-center items-center" @click="addLike()">
+              <font-awesome-icon v-if="!activeButton" :icon="['far', 'heart']" /> 
+              <font-awesome-icon v-else :icon="['fas', 'heart']"/> <span class="ml-1">{{ counter }}</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   </section>
  </div>
- <div v-else class="container justify-center items-center content-center mx-auto bg-secondary w-full p-7 m-10 rounded-md font-nunito">
-    Você não pode acessar essa página, <nuxt-link to="/" class="underline">Faça Login</nuxt-link>
-  </div>
 </template>
 
 <script lang="ts">
@@ -83,16 +100,15 @@ export default {
       loading: false,
       isLogged: false,
       jwtToken: "" as string,
+      counter: 27,
+      activeButton: false
     }
   },
   beforeMount() {
     const cookieToken = useCookie("jwtToken");
     this.jwtToken = cookieToken.value as string;
 
-    if (this.jwtToken || this.jwtToken != '') {
-      this.isLogged = true;
-      this.fetchSongs(); 
-    }
+    this.fetchSongs(); 
   },
   methods: {
     getMusicImage(imageSrc: string): string {
@@ -100,6 +116,15 @@ export default {
         return "/img-placeholder.png";
       }
       return imageSrc;
+    },
+    addLike() {
+      if (this.activeButton) {
+        this.activeButton = false;
+        this.counter = this.counter - 1;
+        return;
+      }
+      this.activeButton = true;
+      this.counter++
     },
     async fetchSongs() {
       const userID = localStorage.getItem("userID") || "";
