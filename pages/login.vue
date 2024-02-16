@@ -1,6 +1,6 @@
 <template>
   <section class="min-h-screen flex items-center justify-center">
-    <div class="bg-secondary flex rounded-2xl shadow-lg max-w-[1500px] p-5 items-center">
+    <div class="bg-secondary flex rounded-2xl shadow-lg max-w-5xl p-5 items-center">
       <div class="md:w-1/1.5 px-8 md:px-16">
         <h2 class="font-bold text-2xl text-center">Login do Artista</h2>
 

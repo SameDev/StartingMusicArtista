@@ -54,7 +54,7 @@
 
             <div class="mb-4">
               <label for="audioFile" class="block text-white font-bold text-sm mb-2">Arquivo de Áudio:</label>
-              <input type="file" id="audioFile" @change="atualizarAudio" ref="audioFileInput" class="file-input file-input-bordered w-full bg-accent text-white" accept="audio/*" required>
+              <input type="file" id="audioFile" @change="atualizarAudio" ref="audioFileInput" class="file-input file-input-bordered w-full bg-accent text-white" accept="audio/mp3, audio/wav" required>
             </div>
 
             <div class="mb-4">
@@ -240,6 +240,11 @@ beforeMount() {
       atualizarAudio(event: Event) {
         const audioFile = (event.target as HTMLInputElement).files?.[0];
         if (audioFile) {
+          if (audioFile.size > 5 * 1024 * 1024) {
+            this.error = true;
+            this.errorMessage = "O tamanho do arquivo de áudio não pode exceder 5MB.";
+            return;
+          }
           this.audioFile = audioFile;
         }
       },

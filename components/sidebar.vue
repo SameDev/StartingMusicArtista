@@ -36,9 +36,16 @@
               <font-awesome-icon :icon="['fas', 'user-pen']" /> Editar Perfil
             </nuxt-link>
           </li>
-          <li>
-            <nuxt-link v-if="userCargo === 'ADMIN'" to="/" class="text-white">
+          <!-- ADMIN -->
+          <div v-if="userCargo === 'ADMIN'" class="divider"><font-awesome-icon :icon="['fas', 'user-secret']" /> ADMIN</div>
+          <li v-if="userCargo === 'ADMIN'">
+            <nuxt-link  to="/" class="text-white">
               <font-awesome-icon :icon="['fas', 'user-gear']" /> Gerenciar Usuarios
+            </nuxt-link>
+          </li>
+          <li v-if="userCargo === 'ADMIN'">
+            <nuxt-link  to="/gerenciar-tags" class="text-white">
+              <font-awesome-icon :icon="['fas', 'tags']" /> Gerenciar Tags
             </nuxt-link>
           </li>
         </ul>
@@ -58,7 +65,8 @@ export default {
   setup() {
     const isSidebarOpen = ref(false);
     const closeModalBtn = ref(false)
-    const userCargo = "";
+    var userCargo = "";
+    userCargo = useCookie("cargoUser").value || "";
 
     const toggleSidebar = () => {
       isSidebarOpen.value = !isSidebarOpen.value;
@@ -73,14 +81,9 @@ export default {
         closeModalBtn.value = false;
       }
     };
-
     onBeforeMount(() => {
       window.addEventListener('resize', handleResize);
       handleResize();
-
-      if (process.client) {
-        localStorage.getItem('userCargo') || '';
-      }
     });
 
     onBeforeUnmount(() => {

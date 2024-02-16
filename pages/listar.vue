@@ -11,15 +11,15 @@
           <div v-for="music in musics" :key="music.id" class="mt-3 p-3 bg-secondary md:w-1/2 xl:w-1/3 md:m-3 w-full rounded-md">
             <div class="flex items-center justify-between flex-wrap md:flex-nowrap">
               <img v-show="music.loadingBtn" @load="music.loadingBtn = true"  :src="getMusicImage(music.image_url)" :alt="music.nome" class="object-cover object-center h-20 w-20 mt-3 rounded-md mr-5">
-              <div v-if="!music.loadingBtn" class="loading loading-spinner h-12 w-12 mt-3 mr-5"></div>
-              <div class="flex flex-col">
+              <div v-if="!music.loadingBtn" class="loading loading-spinner h-12 w-12 mt-3 mr-5 justify-center items-center"></div>
+              <div v-if="music.loadingBtn"  class="flex flex-col">
                 <h3 class="text-xl font-bold">{{ music.nome }}</h3>
                 <p class="text-gray-400 font-bold">{{ music.artista }}</p>
                 <div class="tags inline-block">
                   <span class="badge badge-accent badge-outline" v-for="tag in music.tags" :key="tag.id">{{ tag.nome }}</span>
                 </div>
               </div>
-              <div class="flex items-center md:justify-end mt-6 md:m-0">
+              <div v-if="music.loadingBtn" class="flex items-center md:justify-end mt-6 md:m-0">
                 <button @click="playAudio(music)" class="btn btn-info text-white mx-1">
                   <font-awesome-icon v-if="!music.isPlaying" :icon="['fas', 'play']" />
                   <font-awesome-icon v-else :icon="['fas', 'pause']" class="ml-0.5" />

@@ -42,7 +42,7 @@ export default {
         if (process.client) {
             this.userPic = localStorage.getItem("userPic") || ""
             this.userNome = localStorage.getItem("userNome") || ""
-            this.userCargo = localStorage.getItem("userCargo") || ""
+            this.userCargo = useCookie("cargoUser").value || ""
         }
     },
     methods: {
