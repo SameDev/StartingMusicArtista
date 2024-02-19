@@ -7,7 +7,7 @@
       <div class="container justify-center items-center content-center mx-auto bg-secondary w-full shadow-lg p-7 m-10 rounded-lg font-nunito">
         <div class="info flex justify-between items-center">
           <h2 class="font-bold text-xl"><font-awesome-icon :icon="['fas', 'tags']" />  Ver Todas as Tags do Sistema</h2>
-          <button class="btn btn-success text-white"><font-awesome-icon :icon="['fas', 'tag']" />  Adicionar Nova Tag</button>
+          <button @click="openAddTagModal" class="btn btn-success text-white"><font-awesome-icon :icon="['fas', 'tag']" />  Adicionar Nova Tag</button>
         </div>
 
         <table class="table-fixed table-zebra md:table-auto w-full border-collapse">
@@ -34,6 +34,7 @@
           </tbody>
         </table>
       </div>
+      <AdicionarTag v-if="showAddTagModal" @close="closeAddTagModal" @tag-added="handleTagAdded"/>
     </section>
   </div>
 </template>
@@ -44,7 +45,8 @@ import type { Tags } from '~/interfaces/apiRef';
 export default {
   data() {
     return {
-      tags: [] as Tags[]
+      tags: [] as Tags[],
+      showAddTagModal: false
     }
   },
   beforeMount() {
@@ -77,6 +79,17 @@ export default {
     },
     editTag(tagId: number) {
       // Lógica para editar a tag com o ID fornecido
+    },
+    openAddTagModal() {
+      this.showAddTagModal = true;
+    },
+    closeAddTagModal() {
+      this.showAddTagModal = false;
+    },
+    handleTagAdded(newTag: Tags) {
+      this.tags.push(newTag);
+      this.closeAddTagModal();
+      this.$router.push('/gerenciar-tags').then(() => window.location.reload());
     }
   }
 }

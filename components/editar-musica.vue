@@ -41,7 +41,7 @@
 
           <div class="mb-4">
             <label for="audioFile" class="block text-white font-bold text-sm mb-2">Arquivo de Áudio:</label>
-            <input type="file" id="audioFile" @change="atualizarAudio" ref="audioFileInput" class="file-input file-input-bordered w-full bg-accent text-white" accept="audio/*">
+            <input type="file" id="audioFile" @change="atualizarAudio" ref="audioFileInput" class="file-input file-input-bordered w-full bg-accent text-white" accept="audio/mp3">
           </div>
 
           <div class="mb-4">
@@ -82,6 +82,7 @@ export default {
       date: "" as unknown as Date,
       tagsIds: [] as number[],
       audioFile: null as unknown as File,
+      originalImageUrl: "", // Adicionando a variável para armazenar a URL original da imagem
     };
   },
   async beforeMount() {
@@ -90,6 +91,9 @@ export default {
 
     this.selectedTags = (this.editedMusic.tags || []).map(tag => ({ name: tag.nome, code: tag.id }));
     await this.fetchTags();
+
+    // Armazenar a URL original da imagem antes da montagem do componente
+    this.originalImageUrl = this.editedMusic.image_url;
   },
   mounted() {
     this.date = new Date(this.editedMusic.data_lanc);
@@ -98,42 +102,42 @@ export default {
   methods: {
     async enviarMusica() {
       this.loading = true;
-        try {
-          let imageUrl = "";
-          if (this.editedMusic.image_url !== this.editedMusic.image_url) {
-            const imageRef = FireRef(storage, `images/${this.editedMusic.nome}-${Date.now()}`);
-            const imageSnapshot = await uploadBytes(imageRef, this.dataURLtoBlob(this.editedMusic.image_url));
-            imageUrl = await getDownloadURL(imageSnapshot.ref);
-          } else {
-            imageUrl = this.editedMusic.image_url;
-          }
+      try {
+        let imageUrl = "";
+        if (this.originalImageUrl !== this.editedMusic.image_url) {
+          const imageRef = FireRef(storage, `images/${this.editedMusic.nome}-${Date.now()}`);
+          const imageSnapshot = await uploadBytes(imageRef, this.dataURLtoBlob(this.editedMusic.image_url));
+          imageUrl = await getDownloadURL(imageSnapshot.ref);
+        } else {
+          imageUrl = this.originalImageUrl;
+        }
 
-          let audioUrl = "";
-          if (this.audioFile) {
-            const audioRef = FireRef(storage, `audio/${this.editedMusic.nome}-${Date.now()}`);
-            const audioSnapshot = await uploadBytes(audioRef, this.audioFile);
-            audioUrl = await getDownloadURL(audioSnapshot.ref);
-          } else {
-            audioUrl = this.editedMusic.url;
-          }
+        let audioUrl = "";
+        if (this.audioFile) {
+          const audioRef = FireRef(storage, `audio/${this.editedMusic.nome}-${Date.now()}`);
+          const audioSnapshot = await uploadBytes(audioRef, this.audioFile);
+          audioUrl = await getDownloadURL(audioSnapshot.ref);
+        } else {
+          audioUrl = this.editedMusic.url;
+        }
 
-          this.tagsIds = this.selectedTags.map(tag => tag.code) || [];
+        this.tagsIds = this.selectedTags.map(tag => tag.code) || [];
 
-          const response = await fetch(`https://starting-music.onrender.com/music/update/${this.editedMusic.id}`, {
-            method: "POST",
-            headers: new Headers({
-              "Content-Type": "application/json",
-              "Authorization": this.jwtToken || ""
-            }),
-            body: JSON.stringify({
-              nome: this.editedMusic.nome,
-              artista: this.editedMusic.artista,
-              songUrl: audioUrl,
-              imageUrl: imageUrl,
-              tags: this.tagsIds,
-              artistaId: (this.editedMusic.artistaId || []).map(id => String(id)),
-            })
-          });
+        const response = await fetch(`https://starting-music.onrender.com/music/update/${this.editedMusic.id}`, {
+          method: "POST",
+          headers: new Headers({
+            "Content-Type": "application/json",
+            "Authorization": this.jwtToken || ""
+          }),
+          body: JSON.stringify({
+            nome: this.editedMusic.nome,
+            artista: this.editedMusic.artista,
+            url: audioUrl,
+            imageUrl: imageUrl,
+            tags: this.tagsIds,
+            artistaId: (this.editedMusic.artistaId || []).map(id => String(id)),
+          })
+        });
 
         if (response.ok) {
           this.loading = false;
@@ -155,25 +159,25 @@ export default {
       }
     },
     async fetchTags() {
-        try {
-            const response = await fetch("https://starting-music.onrender.com/tags");
-            if (response.ok) {
-                const tagsData = await response.json();
-                const uniqueTagsSet = new Set(tagsData.tags.flatMap((tag: Tags) =>
-                  JSON.stringify({ name: tag.nome, code: tag.id })
-                ));
+      try {
+        const response = await fetch("https://starting-music.onrender.com/tags");
+        if (response.ok) {
+          const tagsData = await response.json();
+          const uniqueTagsSet = new Set(tagsData.tags.flatMap((tag: Tags) =>
+            JSON.stringify({ name: tag.nome, code: tag.id })
+          ));
 
-                this.allTags = Array.from(uniqueTagsSet).map((tag) => JSON.parse(tag as string));
+          this.allTags = Array.from(uniqueTagsSet).map((tag) => JSON.parse(tag as string));
 
 
-            }
-            else {
-                console.error("Falha ao buscar tags da API");
-            }
         }
-        catch (error: any) {
-            console.error("Erro durante a busca de tags:", error.message);
+        else {
+          console.error("Falha ao buscar tags da API");
         }
+      }
+      catch (error: any) {
+        console.error("Erro durante a busca de tags:", error.message);
+      }
     },
     closeModal() {
       this.$emit('fecharModal');
@@ -205,6 +209,11 @@ export default {
     atualizarAudio(event: Event) {
       const audioFile = (event.target as HTMLInputElement).files?.[0];
       if (audioFile) {
+        if (audioFile.size > 5 * 1024 * 1024) {
+          this.error = true;
+          this.errorMessage = "O tamanho do arquivo de áudio não pode exceder 5MB.";
+          return;
+        }
         this.audioFile = audioFile;
       }
     },

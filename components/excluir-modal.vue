@@ -19,10 +19,10 @@
         <button
           @click="confirmarExclusao"
           class="btn btn-error text-white w-full"
-          :class="{ 'disabled': music.loadingBtn }"
-          :disabled="music.loadingBtn"
+          :class="{ 'disabled': loadingBtn }"
+          :disabled="loadingBtn"
         > 
-        <div class="loading loading-spinner" v-if="music.loadingBtn"></div>
+        <div class="loading loading-spinner" v-if="loadingBtn"></div>
         <p v-else>Excluir</p>
       </button>
     </div>
@@ -31,11 +31,15 @@
 
 <script lang="ts">
 export default {
+  data() {
+    return {
+      loadingBtn: false
+    }
+  },
   props: ['music'],
   methods: {
     confirmarExclusao() {
-      this.music.loadingBtn = true;
-      setTimeout(() => {this.$emit('confirmarExclusao', this.music.id)}, 200);
+      setTimeout(() => {this.$emit('confirmarExclusao', this.music.id,  this.loadingBtn = true)}, 200);
     },
     fecharModal() {
       this.$emit("fecharModal");

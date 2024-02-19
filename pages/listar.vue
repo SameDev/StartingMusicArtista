@@ -56,7 +56,10 @@
           <div class="w-1/3 skeleton m-3 p-3 py-12 bg-secondary rounded-md"></div>
         </div>
         <EditarMusica v-if="isEditing" :music="(selectedMusic as Music)" @musicaEditada="handleMusicaEditada" @fecharModal="handleCloseEditModal" />
+
+        
       </div>
+      <Error v-if="error" :error-message="errorMessage" />
     </section>
     
   </div>
@@ -76,6 +79,8 @@ export default {
       isRemoving: false,
       audioPlayer: null as unknown as HTMLAudioElement,
       currentPlayingMusic: null as unknown as Music | null,
+      error: false,
+      errorMessage: ""
     };
   },
   beforeMount() {
@@ -186,7 +191,7 @@ export default {
       if (this.currentPlayingMusic && this.currentPlayingMusic !== music) {
         this.currentPlayingMusic.isPlaying = false;
         this.audioPlayer.pause();
-        this.audioPlayer.currentTime = 0; // Reseta o áudio para o início
+        this.audioPlayer.currentTime = 0; 
       }
 
       if (music.isPlaying) {
@@ -200,13 +205,10 @@ export default {
         if (playPromise !== undefined) {
           playPromise
             .then(() => {
-              // Automatic playback started!
-              // Show playing UI.
             })
             .catch(error => {
-              // Auto-play was prevented
-              // Show paused UI.
-              console.error('Playback was prevented:', error);
+              this.error = true;
+              this.errorMessage = "Ocorreu um erro ao executar a música!";
             });
         }
       }
