@@ -109,6 +109,8 @@ export default {
         }
       } catch (error: any) {
         console.error("Erro na requisição:", error.message);
+        this.error = true;
+        this.errorMessage = "Ocorreu um erro ao obter as músicas.";
       }
     },
     getMusicImage(imageUrl: string) {
@@ -142,15 +144,18 @@ export default {
             updatedMusics[musicIndex] = { ...updatedMusics[musicIndex], loadingBtn: false };
             this.musics = updatedMusics;
           }
+          this.error = true;
+          this.errorMessage = "Ocorreu um erro ao excluir a música.";
         }
       } catch (error: any) {
         console.error("Erro na requisição de exclusão:", error.message);
-
         if (musicIndex !== -1) {
           const updatedMusics = [...this.musics];
           updatedMusics[musicIndex] = { ...updatedMusics[musicIndex], loadingBtn: false };
           this.musics = updatedMusics;
         }
+        this.error = true;
+        this.errorMessage = "Ocorreu um erro ao excluir a música.";
       }
     },
     openEditModal(music: Music) {
@@ -187,35 +192,34 @@ export default {
       this.selectedMusic = null as unknown as Music;
       this.isRemoving = false;
     },
-    playAudio(music: Music) {
-      if (this.currentPlayingMusic && this.currentPlayingMusic !== music) {
-        this.currentPlayingMusic.isPlaying = false;
-        this.audioPlayer.pause();
-        this.audioPlayer.currentTime = 0; 
-      }
-
-      if (music.isPlaying) {
-        music.isPlaying = false;
-        this.audioPlayer.pause();
-      } else {
-        music.isPlaying = true;
-        this.audioPlayer.src = music.url;
-
-        const playPromise = this.audioPlayer.play();
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-            })
-            .catch(error => {
-              console.error("Ocorreu um erro ao reproduzir a música: "+error)
-              this.error = true;
-              this.errorMessage = "Ocorreu um erro ao executar a música!";
-            });
+    async playAudio(music: Music) {
+      try {
+        if (this.currentPlayingMusic && this.currentPlayingMusic !== music) {
+          this.currentPlayingMusic.isPlaying = false;
+          this.audioPlayer.pause();
+          this.audioPlayer.currentTime = 0; 
         }
-      }
 
-      this.currentPlayingMusic = music;
-},
+        if (music.isPlaying) {
+          music.isPlaying = false;
+          this.audioPlayer.pause();
+        } else {
+          music.isPlaying = true;
+          this.audioPlayer.src = music.url;
+
+          const playPromise = this.audioPlayer.play();
+          if (playPromise !== undefined) {
+            await playPromise;
+          }
+        }
+
+        this.currentPlayingMusic = music;
+      } catch (error) {
+        console.error("Ocorreu um erro ao reproduzir a música:", error.message);
+        this.error = true;
+        this.errorMessage = "Ocorreu um erro ao reproduzir a música.";
+      }
+    },
   },
 };
 </script>
