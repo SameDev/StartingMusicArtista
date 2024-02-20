@@ -1,22 +1,29 @@
 <template>
   <div class="overflow-x-hidden">
-    <Sidebar/>
+    <Sidebar />
     <section class="2xl:ml-[17%] px-10 py-5">
       <Header page="Lista de Músicas" icon="headphones"></Header>
       <div class="container mx-auto p-7 md:m-10 m-0 ">
         <div class="w-full text-end">
-          <nuxt-link to="enviar-musica" class="btn btn-success font-bold uppercase text-white shadow-sm"><font-awesome-icon :icon="['fas', 'plus']" /> Adicionar Nova Música</nuxt-link>
+          <nuxt-link to="enviar-musica"
+            class="btn btn-success font-bold uppercase text-white shadow-sm"><font-awesome-icon :icon="['fas', 'plus']" />
+            Adicionar Nova Música</nuxt-link>
         </div>
-        <div v-if="musics && musics.length > 0" class="mt-5 flex flex-wrap justify-center" :class="{'overflow-hidden fixed': isEditing}">
-          <div v-for="music in musics" :key="music.id" class="mt-3 p-3 bg-secondary md:w-1/2 xl:w-1/3 md:m-3 w-full rounded-md">
+        <div v-if="musics && musics.length > 0" class="mt-5 flex flex-wrap justify-center"
+          :class="{ 'overflow-hidden fixed': isEditing }">
+          <div v-for="music in musics" :key="music.id"
+            class="mt-3 p-3 bg-secondary md:w-1/2 xl:w-1/3 md:m-3 w-full rounded-md">
             <div class="flex items-center justify-between flex-wrap md:flex-nowrap">
-              <img v-show="music.loadingBtn" @load="music.loadingBtn = true"  :src="getMusicImage(music.image_url)" :alt="music.nome" class="object-cover object-center h-20 w-20 mt-3 rounded-md mr-5">
-              <div v-if="!music.loadingBtn" class="loading loading-spinner h-12 w-12 mt-3 mr-5 justify-center items-center"></div>
-              <div v-if="music.loadingBtn"  class="flex flex-col">
+              <img v-show="music.loadingBtn" @load="music.loadingBtn = true" :src="getMusicImage(music.image_url)"
+                :alt="music.nome" class="object-cover object-center h-20 w-20 mt-3 rounded-md mr-5">
+              <div v-if="!music.loadingBtn"
+                class="loading loading-spinner h-12 w-12 mt-3 mr-5 justify-center items-center"></div>
+              <div v-if="music.loadingBtn" class="flex flex-col">
                 <h3 class="text-xl font-bold">{{ music.nome }}</h3>
                 <p class="text-gray-400 font-bold">{{ music.artista }}</p>
                 <div class="tags inline-block">
-                  <span class="badge badge-accent badge-outline" v-for="tag in music.tags" :key="tag.id">{{ tag.nome }}</span>
+                  <span class="badge badge-accent badge-outline" v-for="tag in music.tags" :key="tag.id">{{ tag.nome
+                  }}</span>
                 </div>
               </div>
               <div v-if="music.loadingBtn" class="flex items-center md:justify-end mt-6 md:m-0">
@@ -31,11 +38,8 @@
                   <button @click="openExcluirModal(music)" :id="'my_modal_' + music.id" class="btn btn-error text-white">
                     <font-awesome-icon :icon="['fas', 'trash']" />
                   </button>
-                  <ExcluirModal v-if="isRemoving && selectedMusic === music"
-                    :music="selectedMusic"
-                    @fecharModal="handleCloseExcluirModal"
-                    @confirmarExclusao="handleConfirmarExclusao"
-                  />
+                  <ExcluirModal v-if="isRemoving && selectedMusic === music" :music="selectedMusic"
+                    @fecharModal="handleCloseExcluirModal" @confirmarExclusao="handleConfirmarExclusao" />
                 </div>
               </div>
             </div>
@@ -55,16 +59,16 @@
           <div class="w-1/3 skeleton m-3 p-3 py-12 bg-secondary rounded-md"></div>
           <div class="w-1/3 skeleton m-3 p-3 py-12 bg-secondary rounded-md"></div>
         </div>
-        <EditarMusica v-if="isEditing" :music="(selectedMusic as Music)" @musicaEditada="handleMusicaEditada" @fecharModal="handleCloseEditModal" />
+        <EditarMusica v-if="isEditing" :music="(selectedMusic as Music)" @musicaEditada="handleMusicaEditada"
+          @fecharModal="handleCloseEditModal" />
 
-        
+
       </div>
       <Error v-if="error" :error-message="errorMessage" />
     </section>
-    
+
   </div>
 </template>
-
 <script lang="ts">
 import { type Music } from "../interfaces/apiRef";
 
@@ -91,6 +95,12 @@ export default {
 
     if (process.client) {
       this.audioPlayer = new Audio();
+    }
+  },
+  beforeUnmount() {
+    if (this.audioPlayer) {
+      this.audioPlayer.pause();
+      this.audioPlayer = null as unknown as HTMLAudioElement;
     }
   },
   methods: {
@@ -200,16 +210,21 @@ export default {
           this.audioPlayer.currentTime = 0; 
         }
 
-        if (music.isPlaying) {
-          music.isPlaying = false;
-          this.audioPlayer.pause();
-        } else {
+        if (!this.currentPlayingMusic || this.currentPlayingMusic !== music) {
           music.isPlaying = true;
           this.audioPlayer.src = music.url;
 
           const playPromise = this.audioPlayer.play();
           if (playPromise !== undefined) {
             await playPromise;
+          }
+        } else if (this.currentPlayingMusic && this.currentPlayingMusic === music) {
+          if (music.isPlaying) {
+            music.isPlaying = false;
+            this.audioPlayer.pause();
+          } else {
+            music.isPlaying = true;
+            this.audioPlayer.play();
           }
         }
 
