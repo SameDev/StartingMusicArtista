@@ -207,6 +207,7 @@ export default {
             .then(() => {
             })
             .catch(error => {
+              console.error("Ocorreu um erro ao reproduzir a música: "+error)
               this.error = true;
               this.errorMessage = "Ocorreu um erro ao executar a música!";
             });
