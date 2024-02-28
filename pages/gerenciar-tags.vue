@@ -26,7 +26,7 @@
                 <button @click="editTag(tag.id)" class="btn btn-success text-white font-bold md:mr-2">
                   <font-awesome-icon :icon="['fas', 'pen']" /> <span class="hidden md:block">Editar</span>
                 </button>
-                <button @click="deleteTag()" class="btn btn-error text-white font-bold ">
+                <button @click="deleteTag(tag)" class="btn btn-error text-white font-bold">
                   <font-awesome-icon :icon="['fas', 'trash']" /> <span class="hidden md:block">Excluir</span>
                 </button>
               </td>
@@ -35,7 +35,11 @@
         </table>
       </div>
       <AdicionarTag v-if="showAddTagModal" @close="closeAddTagModal" @tag-added="handleTagAdded"/>
-      <ExcluirTag v-if="showRemoveTagModal" @close="" @tag-removed=""/>
+      <ExcluirTag 
+      v-if="showRemoveTagModal" 
+      @tag-removed="handleTagRemoved"
+      :tag="tagToRemove"
+      @close="fecharModal"/>
     </section>
   </div>
 </template>
@@ -48,7 +52,8 @@ export default {
     return {
       tags: [] as Tags[],
       showAddTagModal: false,
-      showRemoveTagModal: false
+      showRemoveTagModal: false,
+      tagToRemove: null as Tags | null
     }
   },
   beforeMount() {
@@ -76,8 +81,16 @@ export default {
             console.error("Erro durante a busca de tags:", error.message);
         }
     },
-    deleteTag() {
-      this.showRemoveTagModal = true
+    deleteTag(tag: Tags) {
+      this.tagToRemove = tag;
+      this.showRemoveTagModal = true;
+    },
+    handleTagRemoved(removedTag: Tags) {
+      this.tags = this.tags.filter(tag => tag.id !== removedTag.id);
+      this.showRemoveTagModal = false;
+    },
+    fecharModal() {
+      this.showRemoveTagModal = false;
     },
     editTag(tagId: number) {
       // Lógica para editar a tag com o ID fornecido
