@@ -4,7 +4,15 @@
   <section class="2xl:ml-[17%] px-10 py-5">
     <Header page="Página Principal" icon="house"></Header>
     <div class="h-[86vh] flex flex-wrap">
-      <div class="w-[67%] h-1/2 bg-accent rounded-lg shadow-md mr-7 box-container"></div>
+        <div id="banner" class="relative w-[65%] h-1/2 bg-accent rounded-lg shadow-md mr-7 box-container overflow-hidden">
+          <NuxtImg class="w-full h-full object-cover" src="/banner.png" alt="Banner do sistema"/>
+          <div class="absolute inset-0 px-10 py-5 flex items-center justify-center bg-base-300 bg-opacity-70 shadow-md text-white">
+            <div class="text-center">
+              <h2 class="text-6xl font-extrabold mb-4 text-shadow-lg font-nunit">Starting Music</h2>
+              <p class="text-lg font-roboto">Sua plataforma de oportunidades.</p>
+            </div>
+          </div>          
+        </div>
       <div class="w-[31%] h-1/2 bg-accent rounded-lg shadow-md p-5 box-container">
         <div v-if="loading" class="text-base-100 p-5 flex items-center justify-center"><div class="loading loading-base-100 loading-spinner" v-if="loading"></div> Buscando Músicas...</div>
         <div v-else>
@@ -60,8 +68,8 @@
         </div> <!-- ICONS -->
 
 
-      <div class="w-[49%] h-1/4 bg-accent rounded-lg shadow-md mr-7 box-container"></div>
-      <div class="w-[49%] lg:h-1/4 bg-accent rounded-lg shadow-md box-container p-5 flex align-center items-center flex-wrap" >
+      <div class="w-[48%] h-1/4 bg-accent rounded-lg shadow-md mr-7 box-container"></div>
+      <div class="w-[48%] lg:h-1/4 bg-accent rounded-lg shadow-md box-container p-5 flex align-center items-center flex-wrap" >
         <h2 class="text-xl text-center text-base-100 w-full font-bold md:-mb-5">Destaque</h2>
         <div class="flex items-center align-center xl:flex-nowrap flex-wrap">
           <div class="avatar md:w-auto w-full text-center items-center justify-center">
@@ -157,12 +165,14 @@ export default {
 
 <style scoped>
 
-@media screen and (max-width: 1780px) {
+@media screen and (max-width: 1700px) {
   .box-container {
     width: 100% !important;
     margin-right: 0;
     margin-top: 7px;
   }
+
+  
 }
 
 </style>
