@@ -1,11 +1,7 @@
 <template>
   <div>
     <a @click="toggleSidebar" class=" text-xl cursor-pointer text-white m-5 fixed btn btn-base-100 top-0 left-0 z-2">
-<<<<<<< HEAD
       <font-awesome-icon :icon="['fas', 'bars']" /> 
-=======
-      <font-awesome-icon :icon="['fas', 'bars']" />
->>>>>>> refs/remotes/origin/master
     </a>
     <div
       :class="{ 'translate-x-0': !isSidebarOpen, '-translate-x-full': isSidebarOpen }"
