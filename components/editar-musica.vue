@@ -62,6 +62,7 @@
 </template>
 
 <script lang="ts">
+import { uploadBytes } from '~/composables/firebase';
 import { type Tags, type Music } from '~/interfaces/apiRef';
 
 export default {
