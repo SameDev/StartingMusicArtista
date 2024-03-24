@@ -23,7 +23,7 @@
         </form>
         <div class="mt-3 text-base flex justify-between items-center">
               <p class="mr-10">Não tem uma conta ou não é um artista?</p>
-              <button class="btn btn-accent">Cadastro</button>
+              <nuxt-link to="/cadastro"><button class="btn btn-accent">Cadastro</button></nuxt-link>
             </div>
       </div>
       <div class="md:flex hidden w-1/2 flex-col items-center justify-center">
