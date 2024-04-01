@@ -33,6 +33,13 @@
             </tr>
           </tbody>
         </table>
+        
+        <div class="pagination flex w-full justify-center items-center text-center font-bold font-nunit mt-2">
+          <button class="btn btn-primary mr-5 text-4xl" @click="prevPage" :disabled="currentPage === 1">&#8249;</button>
+          <span>{{ currentPage }} de {{ totalPages }}</span>
+          <button class="btn btn-primary ml-5 text-4xl" @click="nextPage" :disabled="currentPage === totalPages"> &#8250;</button>
+        </div>
+        
       </div>
       <AdicionarTag v-if="showAddTagModal" @close="closeAddTagModal" @tag-added="handleTagAdded"/>
       <ExcluirTag 
@@ -40,8 +47,14 @@
       @tag-removed="handleTagRemoved"
       :tag="tagToRemove"
       @close="fecharModal"/>
+      <EditarTag v-if="showEditTagModal" 
+      @close="closeEditTagModal" 
+      @tag-updated="handleTagUpdated" 
+      :tagId="tagToEdit.id" 
+      :tagName="tagToEdit.nome" />
     </section>
   </div>
+  <Loading v-if="loading"/>
 </template>
 
 <script lang="ts">
@@ -51,27 +64,32 @@ export default {
   data() {
     return {
       tags: [] as Tags[],
+      currentPage: 1,
+      pageSize: 10,
+      totalPages: 0,
+      totalTags: 0,
       showAddTagModal: false,
       showRemoveTagModal: false,
-      tagToRemove: null as Tags | null
+      tagToRemove: null as Tags | null,
+      showEditTagModal: false,
+      tagToEdit: null as Tags | null,
+      loading: false
     }
   },
   beforeMount() {
-    this.fetchTags()
+    this.fetchTags();
   },
   methods: {
     async fetchTags() {
         try {
-            const response = await fetch("https://starting-music.onrender.com/tags");
+          this.loading = true;
+            const response = await fetch(`https://starting-music.onrender.com/tags?page=${this.currentPage}&pageSize=${this.pageSize}`);
             if (response.ok) {
-                const tagsData = await response.json();
-                const uniqueTagsSet = new Set(tagsData.tags.flatMap((tag: Tags) =>
-                  JSON.stringify({  id: tag.id, nome: tag.nome })
-                ));
-
-                this.tags = Array.from(uniqueTagsSet).map((tag) => JSON.parse(tag as string));
-
-
+                const { tags, total } = await response.json();
+                this.tags = tags;
+                this.totalTags = total;
+                this.loading = false;
+                this.calculateTotalPages();
             }
             else {
                 console.error("Falha ao buscar tags da API");
@@ -80,6 +98,9 @@ export default {
         catch (error: any) {
             console.error("Erro durante a busca de tags:", error.message);
         }
+    },
+    calculateTotalPages() {
+      this.totalPages = Math.ceil(this.totalTags / this.pageSize);
     },
     deleteTag(tag: Tags) {
       this.tagToRemove = tag;
@@ -92,8 +113,12 @@ export default {
     fecharModal() {
       this.showRemoveTagModal = false;
     },
-    editTag(tagId: number) {
-      // Lógica para editar a tag com o ID fornecido
+    editTag(tagId) {
+      const tag = this.tags.find(tag => tag.id === tagId);
+      if (tag) {
+        this.tagToEdit = tag;
+        this.showEditTagModal = true;
+      }
     },
     openAddTagModal() {
       this.showAddTagModal = true;
@@ -104,7 +129,36 @@ export default {
     handleTagAdded(newTag: Tags) {
       this.tags.push(newTag);
       this.closeAddTagModal();
-      this.$router.push('/gerenciar-tags').then(() => window.location.reload());
+      this.fetchTags(); 
+    },
+    closeEditTagModal() {
+      this.showEditTagModal = false;
+      this.tagToEdit = null;
+    },
+    handleTagUpdated(updatedTag) {
+      const index = this.tags.findIndex(tag => tag.id === updatedTag.id);
+      if (index !== -1) {
+        this.tags[index] = updatedTag;
+      }
+      this.closeEditTagModal();
+    },
+    goToPage(page) {
+      if (page >= 1 && page <= this.totalPages) {
+        this.currentPage = page;
+        this.fetchTags();
+      }
+    },
+    nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+        this.fetchTags();
+      }
+    },
+    prevPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+        this.fetchTags();
+      }
     }
   }
 }

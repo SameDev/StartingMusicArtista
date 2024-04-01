@@ -4,7 +4,7 @@
   <section class="2xl:ml-[17%] px-10 py-5">
     <Header page="Página Principal" icon="house"></Header>
     <div class="h-[86vh] flex flex-wrap">
-        <div id="banner" class="relative w-[65%] h-1/2 bg-accent rounded-lg shadow-md mr-7 box-container overflow-hidden">
+        <div id="banner" class="relative w-[67%] h-1/2 bg-accent rounded-lg shadow-md mr-7 box-container overflow-hidden">
           <NuxtImg class="w-full h-full object-cover" src="/banner.png" alt="Banner do sistema"/>
           <div class="absolute inset-0 px-10 py-5 flex items-center justify-center bg-base-300 bg-opacity-70 shadow-md text-white">
             <div class="text-center">
@@ -37,7 +37,7 @@
         
       </div>
       
-      <div class="box-icons xl:overflow-visible overflow-y-hidden overflow-x-auto flex justify-between md:w-full w-auto h-40 xl:h-1/4 py-5">
+      <div class="box-icons xl:overflow-visible overflow-y-hidden overflow-x-auto flex justify-between md:w-full w-full h-40 xl:h-1/4 py-5">
 
         <div class="flex md:space-x-4 md:w-full">
           <nuxt-link to="/listar" class="bg-[#7E8BBA] md:w-1/4 w-96 h-full rounded-2xl shadow-sm flex justify-center align-center items-center text-7xl text-white md:mr-0 mr-8 tooltip tooltip-top" data-tip="Ver suas músicas">
@@ -68,8 +68,8 @@
         </div> <!-- ICONS -->
 
 
-      <div class="w-[48%] h-1/4 bg-accent rounded-lg shadow-md mr-7 box-container"></div>
-      <div class="w-[48%] lg:h-1/4 bg-accent rounded-lg shadow-md box-container p-5 flex align-center items-center flex-wrap" >
+      <div class="w-[49%] h-1/4 bg-accent rounded-lg shadow-md mr-7 box-container"></div>
+      <div class="w-[49%] lg:h-1/4 bg-accent rounded-lg shadow-md box-container p-5 flex align-center items-center flex-wrap" >
         <h2 class="text-xl text-center text-base-100 w-full font-bold md:-mb-5">Destaque</h2>
         <div class="flex items-center align-center xl:flex-nowrap flex-wrap">
           <div class="avatar md:w-auto w-full text-center items-center justify-center">
@@ -165,7 +165,7 @@ export default {
 
 <style scoped>
 
-@media screen and (max-width: 1700px) {
+@media screen and (max-width: 1800px) {
   .box-container {
     width: 100% !important;
     margin-right: 0;
