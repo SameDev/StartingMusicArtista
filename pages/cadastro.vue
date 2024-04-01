@@ -129,150 +129,112 @@ export default {
         }
     },
     async fazerCadastro() {
-      const { nome, email, senha, data_nasc, cargo, desc, tags, bannerUrl, imageUrl } = this;
+  this.envio = true;
+  
+  try {
+    // Upload das imagens
+    const imageRef = FireRef(storage, `images/${this.nome}-${Date.now()}`);
+    const imageSnapshot = await uploadBytes(imageRef, this.dataURLtoBlob(this.imageUrl));
+    const uploadedImageUrl = await getDownloadURL(imageSnapshot.ref);
 
-      // Verificar se todos os campos obrigatórios foram preenchidos
-      if (!nome || !email || !senha || !data_nasc || !cargo || !desc || !tags || !bannerUrl || !imageUrl) {
-        this.error = true;
-        this.errorMessage = "Por favor, preencha todos os campos.";
-        return;
+    const bannerRef = FireRef(storage, `banners/${this.nome}-${Date.now()}`);
+    const bannerSnapshot = await uploadBytes(bannerRef, this.dataURLtoBlob(this.bannerUrl));
+    const uploadedBannerUrl = await getDownloadURL(bannerSnapshot.ref);
+
+    // Envio do formulário de cadastro para a API
+    const cadastroOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        nome: this.nome, 
+        email: this.email, 
+        senha: this.senha, 
+        data_nasc: this.data_nasc, 
+        cargo: this.cargo, 
+        desc: this.desc, 
+        tags: this.tags, 
+        bannerUrl: uploadedBannerUrl, 
+        foto_perfil: uploadedImageUrl 
+      }),
+    };
+
+    const cadastroResponse = await fetch(api_url, cadastroOptions);
+    const cadastroData = await cadastroResponse.json();
+
+    if (!cadastroResponse.ok) {
+      throw new Error(cadastroData.Error);
+    }
+
+    // Exibir mensagem de sucesso
+    this.success = true;
+    this.successMessage = "Cadastro realizado com sucesso!";
+
+    console.log(cadastroData)
+
+    if (cadastroData.user) {
+      localStorage.setItem('userID', cadastroData.user.id);
+      localStorage.setItem('userEmail', this.email);
+      localStorage.setItem('userNome', this.nome);
+      localStorage.setItem('userPic', cadastroData.user.foto_perfil);
+      localStorage.setItem('userCargo', this.cargo);
+      localStorage.setItem('userTags', JSON.stringify(this.tags) || "[]");
+      localStorage.setItem('userDesc', this.desc);
+      localStorage.setItem('userNasc', this.data_nasc);
+      localStorage.setItem('userBanner', uploadedBannerUrl);
+
+      const jwtToken = cadastroResponse.headers.get('Authorization');
+      if (jwtToken) {
+        this.armazenarToken(jwtToken);
+      } else {
+        throw new Error("Token JWT não encontrado na resposta da API!");
       }
 
-      // Realizar o envio do formulário
-      this.envio = true;
+      this.redirecionarAposCadastro();
+    } else {
+      throw new Error("Dados do usuário não retornados após o cadastro.");
+    }
 
-      try {
-        // Upload das imagens
-        const imageRef = FireRef(storage, `images/${nome}-${Date.now()}`);
-        const imageSnapshot = await uploadBytes(imageRef, this.dataURLtoBlob(imageUrl));
-        const uploadedImageUrl = await getDownloadURL(imageSnapshot.ref);
-
-        const bannerRef = FireRef(storage, `banners/${nome}-${Date.now()}`);
-        const bannerSnapshot = await uploadBytes(bannerRef, this.dataURLtoBlob(bannerUrl));
-        const uploadedBannerUrl = await getDownloadURL(bannerSnapshot.ref);
-
-        // Envio do formulário de cadastro
-        const cadastroOptions = {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ 
-            nome: this.nome, 
-            email: this.email, 
-            senha: this.senha, 
-            data_nasc: this.data_nasc, 
-            cargo: this.cargo, 
-            desc: this.desc, 
-            tags: this.tags, 
-            bannerUrl: uploadedBannerUrl, 
-            imageUrl: uploadedImageUrl 
-          }),
-        };
-
-        const cadastroResponse = await fetch(api_url, cadastroOptions);
-        const cadastroData = await cadastroResponse.json();
-
-        if (!cadastroResponse.ok) {
-          throw new Error(cadastroData.message || "Erro desconhecido ao cadastrar.");
-        }
+  } catch (error) {
+    console.error("Erro durante o cadastro:", error);
+    this.error = true;
+    this.errorMessage = error.message || "Erro ao enviar solicitação.";
+  } finally {
+    this.envio = false;
+  }
+},
 
 
-        
-
-        // Exibir mensagem de sucesso
-        this.success = true;
-        this.successMessage = "Cadastro realizado com sucesso!";
-
-        await this.fazerLogin(email, senha);
-      } catch (error) {
-        console.error("Erro durante o cadastro:", error);
-        this.error = true;
-        this.errorMessage = error.message || "Erro ao enviar solicitação.";
-      } finally {
-        this.envio = false;
-      }
+    armazenarToken(token: string) {
+      const cookieToken = useCookie("jwtToken", {
+        maxAge: 8 * 60 * 60, 
+        secure: true,
+        sameSite: true, 
+      });
+      cookieToken.value = token;
     },
-    async fazerLogin(email: string, senha: string) {
-      this.envio = true;
-
-      if (!email || !senha) {
-        this.envio = false;
-        this.error = true;
-        this.errorMessage = "Você precisa preencher todos os campos!";
-        return;
-      }
-
-      try {
-        const options = {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email, senha }),
-        };
-
-        const response = await fetch(api_url, options);
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || "Erro interno no servidor!");
-        }
-
-        const jwtToken = response.headers.get('Authorization');
-
-        if (jwtToken) {
-          // Armazenar o token JWT em um cookie ou localStorage
-          // Exemplo usando cookie:
-          const cookieToken = useCookie("jwtToken", {
-            maxAge: 8 * 60 * 60, // Tempo de expiração do token em segundos (por exemplo, 8 horas)
-            secure: true, // Defina como true se estiver usando HTTPS
-            sameSite: true, // Opção para prevenir ataques de CSRF
-          });
-          cookieToken.value = jwtToken;
-
-          // Armazenar outros dados do usuário, se necessário
-          // Exemplo: localStorage.setItem('userID', data.user.id);
-
-          // Redirecionar o usuário após o login
-          this.$router.push('/').then(() => window.location.reload());
-
-          // Exibir mensagem de sucesso, se necessário
-          this.success = true;
-          this.successMessage = "Login realizado com sucesso!";
-        } else {
-          throw new Error("Token JWT não encontrado na resposta da API!");
-        }
-      } catch (error) {
-        console.error("Erro durante o login:", error);
-        this.error = true;
-        this.errorMessage = error.message || "Erro ao enviar solicitação.";
-      } finally {
-        this.envio = false;
-      }
+    redirecionarAposCadastro() {
+      this.$router.push('/').then(() => window.location.reload());
     },
     handleImageUpload(event: Event) {
-      console.log("handleImageUpload chamado");
       const imageFile = (event.target as HTMLInputElement).files?.[0];
       if (imageFile) {
         const imageReader = new FileReader();
         imageReader.onloadend = () => {
           this.imageUrl = imageReader.result as string;
-          console.log("imageUrl atualizado:", this.imageUrl);
         };
         imageReader.readAsDataURL(imageFile);
       }
     },
     handleBannerUpload(event: Event) {
-      console.log("handleBannerUpload chamado");
       const bannerFile = (event.target as HTMLInputElement).files?.[0];
       if (bannerFile) {
-        const imageReader = new FileReader();
-        imageReader.onloadend = () => {
-          this.bannerUrl = imageReader.result as string;
-          console.log("bannerUrl atualizado:", this.bannerUrl);
+        const bannerReader = new FileReader();
+        bannerReader.onloadend = () => {
+          this.bannerUrl = bannerReader.result as string;
         };
-        imageReader.readAsDataURL(bannerFile);
+        bannerReader.readAsDataURL(bannerFile);
       }
     },
     dataURLtoBlob(dataURL: string, type?: string) {
