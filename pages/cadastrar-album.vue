@@ -25,7 +25,7 @@
 
           <div class="divider font-bold">ADICIONAR ÁLBUM</div>
 
-          <form @submit.prevent="enviarAlbum">
+          <form>
             <div class="mb-4">
               <label for="nome" class="block text-white font-bold text-sm mb-2">Nome do álbum</label>
               <input type="text" id="nome" v-model="nome" class="input input-bordered bg-accent w-full text-white" required>
@@ -37,7 +37,7 @@
             </div>
             <div class="mb-4">
               <label for="date" class="block text-white font-bold text-sm mb-2">Data De Lançamento</label>
-              <input type="date" id="date" v-model="date" class="input input-bordered bg-accent w-full text-white" required> 
+              <input type="date" id="date" v-model="date" class="input input-bordered bg-accent w-full text-white" required>
             </div>
 
             <div class="mb-4">
@@ -47,7 +47,7 @@
 
             <div class="mb-4">
               <label for="desc" class="block text-white font-bold text-sm mb-2">Descrição do Álbum</label>
-              <textarea id="desc" v-model="desc" class="input input-bordered bg-accent w-full text-white" rows="3"></textarea>
+              <textarea id="desc" v-model="desc" class="textarea textarea-bordered w-full text-white  bg-accent" rows="3"></textarea>
             </div>
 
             <div class="mb-4">
@@ -55,22 +55,46 @@
               <MultiSelect v-model="selectedTags" :options="allTags" filter optionLabel="name" selectedItemsLabel="{0} tags selecionadas" :maxSelectedLabels="3" class="w-full md:w-20rem input input-bordered bg-accent text-white" />
             </div>
 
-            <div class="mb-4">
-              <label for="musicas" class="block text-white font-bold text-sm mb-2">Músicas do Álbum</label>
-              <input type="file" id="musicas" @change="adicionarMusica" class="file-input file-input-bordered w-full bg-accent text-white" accept="audio/*" required multiple>
-              <div v-for="(musica, index) in musicas" :key="index" class="mt-2">
-                <label class="block text-white font-bold text-sm mb-1">Música {{ index + 1 }}</label>
-                <input type="text" v-model="musica.nome" class="input input-bordered bg-accent w-full text-white" placeholder="Nome da música" required>
+            <!-- Seção de adição de músicas -->
+            <div>
+              <div class="mb-4">
+                <label for="musicas" class="block text-white font-bold text-sm mb-2">Músicas do Álbum:</label>
+                <div class="flex items-center">
+                  <button @click="adicionarMusica" type="button" class="btn btn-success w-1/2">+ Adicionar</button>
+                  <span class="ml-2 w-1/2">Clique no botão para adicionar uma música</span>
+                  
+                </div>
+                <div class="divider"></div>
+                
+                <!-- Loop para exibir os campos de cada música -->
+                <div v-for="(musica, index) in musicas" :key="index">
+                  <div class="mb-4 song">
+                    <label :for="'nomeMusica' + index" class="block text-white font-bold text-xl mb-2">Música {{ index + 1 }}:</label>
+                    <div class="mb-4">
+                      <label :for="'nome' + index" class="block text-white font-bold text-sm mb-2">Nome da Música</label>
+                      <input :id="'nome' + index" type="text" v-model="musica.nome" class="input input-bordered bg-accent w-full text-white" required>
+                    </div>
+
+                    <div class="mb-4">
+                      <label :for="'audioFile' + index" class="block text-white font-bold text-sm mb-2">Arquivo de Áudio:</label>
+                      <input :id="'audioFile' + index" type="file" @change="atualizarAudio(index, $event)" ref="audioFileInput" class="file-input file-input-bordered w-full bg-accent text-white" accept="audio/mp3, audio/wav" required>
+                    </div>
+
+                    <!-- Botão para remover a música -->
+                    <button type="button" @click="removerMusica(index)" class="btn btn-error text-white w-full"><font-awesome-icon :icon="['fas', 'trash']" /> Remover</button>
+                    <div class="divider"></div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <button type="submit" class="btn btn-primary w-full">Cadastrar Álbum</button>
-            
-            <div v-if="success || error" class="divider"></div>
-            <Success v-if="success" :success-message="successMessage"/>
-            <Error v-if="error" :error-message="errorMessage"/>
+            <button @click.prevent="enviarAlbum" class="btn btn-primary w-full">Cadastrar Álbum</button>
 
-            <Loading v-if="loading"/>
+            <div v-if="success || error" class="divider"></div>
+            <Success v-if="success" :success-message="successMessage" />
+            <Error v-if="error" :error-message="errorMessage" />
+
+            <Loading v-if="loading" />
           </form>
         </div>
       </div>
@@ -105,11 +129,12 @@ export default {
       errorMessage: "",
       loading: false,
       picImg: "",
-      musicas: [] as { nome: string, arquivo: File }[],
-      viewDate: null as unknown as Date, 
+      musicas: [] as { nome: string, arquivo: File | null }[],
+      viewDate: null as unknown as Date,
       qtdMusicas: 0,
       durationAlbum: 0,
-      desc: "Breve descrição do seu incrível álbum"
+      desc: "Breve descrição do seu incrível álbum",
+      songQtd: 0
     };
   },
   beforeMount() {
@@ -140,9 +165,12 @@ export default {
 
         // Upload de músicas do álbum
         const musicasPromises = this.musicas.map(async (musica) => {
-          const audioRef = FireRef(storage, `audio/${musica.nome}-${Date.now()}`);
-          const audioSnapshot = await uploadBytes(audioRef, musica.arquivo);
-          return getDownloadURL(audioSnapshot.ref);
+          if (musica.arquivo) {
+            const audioRef = FireRef(storage, `audio/${musica.nome}-${Date.now()}`);
+            const audioSnapshot = await uploadBytes(audioRef, musica.arquivo);
+            return getDownloadURL(audioSnapshot.ref);
+          }
+          return '';
         });
         const urlsMusicas = await Promise.all(musicasPromises);
 
@@ -153,7 +181,7 @@ export default {
           imageUrl: imageUrl,
           data_lanc: this.date,
           tags: this.selectedTags.map(tag => tag.id),
-          desc: this.desc, // Adicionando a descrição do álbum
+          desc: this.desc,
           musicas: this.musicas.map((musica, index) => ({
             nome: musica.nome,
             url: urlsMusicas[index]
@@ -220,14 +248,16 @@ export default {
         imageReader.readAsDataURL(imageFile);
       }
     },
-    adicionarMusica(event: Event) {
-      const musicFiles = (event.target as HTMLInputElement).files;
-      if (musicFiles) {
-        const newMusicas = Array.from(musicFiles).map((file: File) => ({
-          nome: file.name,
-          arquivo: file
-        }));
-        this.musicas.push(...newMusicas);
+    adicionarMusica() {
+      this.musicas.push({ nome: '', arquivo: null });
+    },
+    removerMusica(index: number) {
+      this.musicas.splice(index, 1);
+    },
+    atualizarAudio(index: number, event: Event) {
+      const audioFile = (event.target as HTMLInputElement).files?.[0];
+      if (audioFile) {
+        this.musicas[index].arquivo = audioFile;
       }
     },
     getImage(imageUrl: string, type: string) {
