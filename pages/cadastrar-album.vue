@@ -5,7 +5,7 @@
     <section class="2xl:ml-[17%] px-10 py-5">
       <!-- Componente de cabeçalho -->
       <Header page="Cadastrar Álbum" icon="record-vinyl"></Header>
-      <div class="container justify-center items-center content-center mx-auto bg-base-300 w-full shadow-xl p-7 m-10 rounded-2xl font-nunito">
+      <div class="container justify-center items-center content-center mx-auto bg-base-300 w-full shadow-xl p-7 md:m-10 m-1 rounded-2xl font-nunito">
         <div>
           <div class="flex items-center justify-between mb-4 w-full">
             <div class="md:flex hidden items-center justify-between m-3 p-3 bg-secondary rounded-md w-full">
