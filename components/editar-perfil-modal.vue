@@ -125,6 +125,7 @@ export default {
       } else {
         bannerUrl = this.userBanner;
       }
+      this.userNasc = new Date(this.userNasc);
 
       try {
         const response = await fetch(`https://starting-music.onrender.com/user/update/${this.userID}`, {
@@ -139,7 +140,8 @@ export default {
             url: imageUrl,
             tags: this.userTags,
             email: this.userEmail,
-            banner: bannerUrl
+            banner: bannerUrl,
+            data_nasc: this.userNasc.toISOString()
           }),
         });
 
@@ -155,6 +157,7 @@ export default {
           localStorage.setItem("userBanner", bannerUrl)
           localStorage.setItem("userEmail", this.userEmail || "");
           localStorage.setItem("userTags", JSON.stringify(this.userSelectedTags) || "[]");
+          localStorage.setItem("userNasc", this.userNasc.toString())
         } else {
           const body = await response.json();
           this.loadingBtn = false;

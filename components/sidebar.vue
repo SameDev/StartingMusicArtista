@@ -32,6 +32,11 @@
             </nuxt-link>
           </li>
           <li>
+            <nuxt-link to="/cadastrar-album" class="text-white">
+              <font-awesome-icon :icon="['fas', 'record-vinyl']" /> Cadastrar Álbum
+            </nuxt-link>
+          </li>
+          <li>
             <nuxt-link to="/editar-perfil" class="text-white">
               <font-awesome-icon :icon="['fas', 'user-pen']" /> Editar Perfil
             </nuxt-link>

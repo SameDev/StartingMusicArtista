@@ -73,6 +73,7 @@ export default {
       this.userBanner = localStorage.getItem("userBanner") || "";
       this.userId = localStorage.getItem("userId") || "";
       this.userTags = JSON.parse(localStorage.getItem("userTags") || "[]") as Tags[]
+      this.userDesc = localStorage.getItem("userDesc") || "";
     }
 
     const cookieToken = useCookie("jwtToken");
