@@ -25,7 +25,7 @@
 
           <div class="divider font-bold">ADICIONAR ÁLBUM</div>
 
-          <form>
+          <form @submit.prevent="enviarAlbum">
             <div class="mb-4">
               <label for="nome" class="block text-white font-bold text-sm mb-2">Nome do álbum</label>
               <input type="text" id="nome" v-model="nome" class="input input-bordered bg-accent w-full text-white" required>
@@ -52,7 +52,8 @@
 
             <div class="mb-4">
               <label for="tags" class="block text-white font-bold text-sm mb-2">Tags do Álbum</label>
-              <MultiSelect v-model="selectedTags" :options="allTags" filter optionLabel="name" selectedItemsLabel="{0} tags selecionadas" :maxSelectedLabels="3" class="w-full md:w-20rem input input-bordered bg-accent text-white" />
+              <MultiSelect v-model="selectedTags" :options="allTags" filter optionLabel="nome" selectedItemsLabel="{0} tags selecionadas" :maxSelectedLabels="3" class="w-full md:w-20rem input input-bordered bg-accent text-white" />
+
             </div>
 
             <!-- Seção de adição de músicas -->
@@ -62,7 +63,6 @@
                 <div class="flex items-center">
                   <button @click="adicionarMusica" type="button" class="btn btn-success w-1/2">+ Adicionar</button>
                   <span class="ml-2 w-1/2">Clique no botão para adicionar uma música</span>
-                  
                 </div>
                 <div class="divider"></div>
                 
@@ -88,7 +88,7 @@
               </div>
             </div>
 
-            <button @click.prevent="enviarAlbum" class="btn btn-primary w-full">Cadastrar Álbum</button>
+            <button type="submit" class="btn btn-primary w-full">Cadastrar Álbum</button>
 
             <div v-if="success || error" class="divider"></div>
             <Success v-if="success" :success-message="successMessage" />
@@ -138,10 +138,10 @@ export default {
     };
   },
   beforeMount() {
-    if (process.client) {
-      const cookieToken = useCookie("jwtToken");
-      this.jwtToken = cookieToken.value as string;
+    const cookieToken = useCookie("jwtToken");
+    this.jwtToken = cookieToken.value as string;
 
+    if (process.client) {
       this.date = new Date() as unknown as Date
       this.viewDate = this.date;
       this.date = this.date.toISOString().split("T")[0] as unknown as Date;
@@ -179,21 +179,22 @@ export default {
           nome: this.nome,
           artista: this.artista,
           imageUrl: imageUrl,
-          data_lanc: this.date,
+          date: this.date,
+          artistaId: this.userID,
           tags: this.selectedTags.map(tag => tag.id),
-          desc: this.desc,
           musicas: this.musicas.map((musica, index) => ({
             nome: musica.nome,
             url: urlsMusicas[index]
-          }))
+          })),
+          desc: this.desc
         };
 
         // Enviar dados do álbum para o backend
-        const response = await fetch("URL_DO_BACKEND/endpoint_de_cadastro_de_album", {
+        const response = await fetch("https://starting-music.onrender.com/album/create", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": this.jwtToken || ""
+            "Authorization": this.jwtToken
           },
           body: JSON.stringify(albumData)
         });
@@ -230,6 +231,7 @@ export default {
         const response = await fetch("https://starting-music.onrender.com/tags");
         if (response.ok) {
           const tagsData = await response.json();
+          console.log(tagsData); // Verificar se os dados estão corretos
           this.allTags = tagsData.tags;
         } else {
           console.error("Falha ao buscar tags da API");
