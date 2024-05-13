@@ -41,6 +41,15 @@
             </div>
 
             <div class="mb-4">
+              <label for="tipoLancamento" class="block text-white font-bold text-sm mb-2">Tipo de Lançamento</label>
+              <select id="tipoLancamento" v-model="tipoLancamento" class="input input-bordered bg-accent w-full text-white" required>
+                <option value="EP">EP</option>
+                <option value="Álbum">Álbum</option>
+                <option value="Single" selected>Single</option>
+              </select>
+            </div>
+
+            <div class="mb-4">
               <label for="imageUrl" class="block text-white font-bold text-sm mb-2">Imagem do Álbum:</label>
               <input type="file" id="imageUrl" @change="atualizarImagem" ref="imageUrlInput" class="file-input file-input-bordered w-full bg-accent text-white" accept="image/*" required>
             </div>
@@ -49,11 +58,11 @@
               <label for="desc" class="block text-white font-bold text-sm mb-2">Descrição do Álbum</label>
               <textarea id="desc" v-model="desc" class="textarea textarea-bordered w-full text-white  bg-accent" rows="3"></textarea>
             </div>
+            
 
             <div class="mb-4">
               <label for="tags" class="block text-white font-bold text-sm mb-2">Tags do Álbum</label>
               <MultiSelect v-model="selectedTags" :options="allTags" filter optionLabel="nome" selectedItemsLabel="{0} tags selecionadas" :maxSelectedLabels="3" class="w-full md:w-20rem input input-bordered bg-accent text-white" />
-
             </div>
 
             <!-- Seção de adição de músicas -->
@@ -74,6 +83,11 @@
                       <label :for="'nome' + index" class="block text-white font-bold text-sm mb-2">Nome da Música</label>
                       <input :id="'nome' + index" type="text" v-model="musica.nome" class="input input-bordered bg-accent w-full text-white" required>
                     </div>
+                    <div class="mb-4">
+                      <label :for="'duracao' + index" class="block text-white font-bold text-sm mb-2">Duração (minutos)</label>
+                      <input :id="'duracao' + index" type="number" v-model="musica.duracao" class="input input-bordered bg-accent w-full text-white" required>
+                    </div>
+
 
                     <div class="mb-4">
                       <label :for="'audioFile' + index" class="block text-white font-bold text-sm mb-2">Arquivo de Áudio:</label>
@@ -91,7 +105,7 @@
             <button type="submit" class="btn btn-primary w-full">Cadastrar Álbum</button>
 
             <div v-if="success || error" class="divider"></div>
-            <Success v-if="success" :success-message="successMessage" />
+            <Success v-if="success" success-message="Álbum cadastrado com sucesso!" />
             <Error v-if="error" :error-message="errorMessage" />
 
             <Loading v-if="loading" />
@@ -119,18 +133,18 @@ export default {
       nome: "",
       artista: "",
       imageUrl: "",
-      date: null as unknown as Date,
+      date: new Date(),
+      tipoLancamento: "", // Novo campo para o tipo de lançamento
       tags: [] as Tags[],
       selectedTags: [] as Tags[],
       allTags: [] as Tags[],
       success: false,
-      successMessage: "",
       error: false,
       errorMessage: "",
       loading: false,
       picImg: "",
-      musicas: [] as { nome: string, arquivo: File | null }[],
-      viewDate: null as unknown as Date,
+      musicas: [] as { nome: string, duracao: number, arquivo: File | null }[],
+      viewDate: new Date(),
       qtdMusicas: 0,
       durationAlbum: 0,
       desc: "Breve descrição do seu incrível álbum",
@@ -138,14 +152,11 @@ export default {
     };
   },
   beforeMount() {
+    // UseCookie está pendente de correção
     const cookieToken = useCookie("jwtToken");
     this.jwtToken = cookieToken.value as string;
 
     if (process.client) {
-      this.date = new Date() as unknown as Date
-      this.viewDate = this.date;
-      this.date = this.date.toISOString().split("T")[0] as unknown as Date;
-
       this.userEmail = localStorage.getItem("userEmail") || "";
       this.userPic = localStorage.getItem("userPic") || "";
       this.userNome = localStorage.getItem("userNome") || "";
@@ -179,12 +190,15 @@ export default {
           nome: this.nome,
           artista: this.artista,
           imageUrl: imageUrl,
-          date: this.date,
-          artistaId: this.userID,
+          date: new Date(this.date).toISOString(),
+          tipoLancamento: this.tipoLancamento, // Inclua este campo
+          artistaId: parseInt(this.userID,10),
           tags: this.selectedTags.map(tag => tag.id),
           musicas: this.musicas.map((musica, index) => ({
             nome: musica.nome,
-            url: urlsMusicas[index]
+            url: urlsMusicas[index],
+            duracao: this.formatarDuracao(musica.duracao), // Formatar a duração
+            data_lanc: new Date(this.date).toISOString()
           })),
           desc: this.desc
         };
@@ -203,7 +217,6 @@ export default {
           this.loading = false;
           this.success = true;
           this.error = false;
-          this.successMessage = "Álbum cadastrado com sucesso!";
         } else {
           this.loading = false;
           this.error = true;
@@ -223,6 +236,15 @@ export default {
         this.loading = false;
         return false;
       } else {
+        // Verificar se cada música tem uma duração válida
+        for (const musica of this.musicas) {
+          if (!musica.duracao || musica.duracao <= 0) {
+            this.error = true;
+            this.errorMessage = "A duração de cada música deve ser maior que zero!";
+            this.loading = false;
+            return false;
+          }
+        }
         return true;
       }
     },
@@ -251,7 +273,7 @@ export default {
       }
     },
     adicionarMusica() {
-      this.musicas.push({ nome: '', arquivo: null });
+      this.musicas.push({ nome: '', duracao: 0, arquivo: null });
     },
     removerMusica(index: number) {
       this.musicas.splice(index, 1);
@@ -288,6 +310,17 @@ export default {
       }
       return new Blob([u8arr], { type: mime });
     },
+    formatarDuracao(duracao: number | string) {
+      if (typeof duracao === 'string' && duracao.trim() === '') {
+        return '00:00';
+      }
+      
+      const duracaoNumerica = typeof duracao === 'string' ? parseInt(duracao) : duracao;
+      const minutos = Math.floor(duracaoNumerica / 60);
+      const segundos = duracaoNumerica % 60;
+      return `${minutos < 10 ? '0' : ''}${minutos}:${segundos < 10 ? '0' : ''}${segundos}`;
+    },
+
   },
   async mounted() {
     await this.fetchTags();

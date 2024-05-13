@@ -29,3 +29,15 @@ export interface Tags {
   musicas: Music[];
 }
 
+export interface Album {
+  id: number;
+  lancamento: string;
+  nome: string;
+  artista: string;
+  desc: string
+  image_url: string
+  data_lanc: Date
+  musicas: Music[];
+  artistaId: string[];
+  tags: Tags[];
+}

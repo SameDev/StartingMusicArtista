@@ -1,16 +1,15 @@
 <template>
-  <div class="overflow-x-hidden">
+  <div class="overflow-x-hidden overflow-y-auto">
     <Sidebar />
     <section class="2xl:ml-[17%] px-10 py-5">
       <Header page="Lista de Músicas" icon="headphones"></Header>
-      <div class="container mx-auto p-7 md:m-10 m-0 ">
+      <div class="container mx-auto p-7 md:m-10 m-0">
         <div class="w-full text-end">
           <nuxt-link to="enviar-musica"
             class="btn btn-success font-bold uppercase text-white shadow-sm"><font-awesome-icon :icon="['fas', 'plus']" />
             Adicionar Nova Música</nuxt-link>
         </div>
-        <div v-if="musics && musics.length > 0" class="mt-5 flex flex-wrap justify-center"
-          :class="{ 'overflow-hidden fixed': isEditing }">
+        <div v-if="musics && musics.length > 0" class="mt-5 flex flex-wrap justify-center">
           <div v-for="music in musics" :key="music.id"
             class="mt-3 p-3 bg-secondary md:w-1/2 xl:w-1/3 md:m-3 w-full rounded-md">
             <div class="flex items-center justify-between flex-wrap md:flex-nowrap">
@@ -45,30 +44,30 @@
             </div>
           </div>
         </div>
-
-        <div v-else-if="!loading">
+        <div v-else-if="!loading && musics && musics.length === 0">
           Nenhuma música encontrada.
         </div>
-        <div class="flex flex-wrap justify-center" v-if="loading">
-          <div class="w-1/3 skeleton m-3 p-3 py-12 bg-secondary rounded-md"></div>
-          <div class="w-1/3 skeleton m-3 p-3 py-12 bg-secondary rounded-md"></div>
-          <div class="w-1/3 skeleton m-3 p-3 py-12 bg-secondary rounded-md"></div>
-          <div class="w-1/3 skeleton m-3 p-3 py-12 bg-secondary rounded-md"></div>
-          <div class="w-1/3 skeleton m-3 p-3 py-12 bg-secondary rounded-md"></div>
-          <div class="w-1/3 skeleton m-3 p-3 py-12 bg-secondary rounded-md"></div>
-          <div class="w-1/3 skeleton m-3 p-3 py-12 bg-secondary rounded-md"></div>
-          <div class="w-1/3 skeleton m-3 p-3 py-12 bg-secondary rounded-md"></div>
+        <div v-else>
+          <!-- Renderize qualquer coisa aqui que deseje mostrar enquanto as músicas estão sendo carregadas -->
+          <div class="flex flex-wrap justify-center">
+            <div class="w-1/3 skeleton m-3 p-3 py-12 bg-secondary rounded-md"></div>
+            <div class="w-1/3 skeleton m-3 p-3 py-12 bg-secondary rounded-md"></div>
+            <div class="w-1/3 skeleton m-3 p-3 py-12 bg-secondary rounded-md"></div>
+            <div class="w-1/3 skeleton m-3 p-3 py-12 bg-secondary rounded-md"></div>
+            <div class="w-1/3 skeleton m-3 p-3 py-12 bg-secondary rounded-md"></div>
+            <div class="w-1/3 skeleton m-3 p-3 py-12 bg-secondary rounded-md"></div>
+            <div class="w-1/3 skeleton m-3 p-3 py-12 bg-secondary rounded-md"></div>
+            <div class="w-1/3 skeleton m-3 p-3 py-12 bg-secondary rounded-md"></div>
+          </div>
         </div>
         <EditarMusica v-if="isEditing" :music="(selectedMusic as Music)" @musicaEditada="handleMusicaEditada"
           @fecharModal="handleCloseEditModal" />
-
-
       </div>
       <Error v-if="error" :error-message="errorMessage" />
     </section>
-
   </div>
 </template>
+
 <script lang="ts">
 import { type Music } from "../interfaces/apiRef";
 
@@ -112,6 +111,7 @@ export default {
         if (response.ok) {
           this.loading = false;
           const data = await response.json();
+          console.log(data)
           const songs: Music[] = data.map((music: Music) => ({ ...music, loadingBtn: false, isPlaying: false }));
           this.musics = songs;
         } else {
@@ -182,10 +182,10 @@ export default {
         const updatedMusics = [...this.musics];
         updatedMusics[musicIndex] = editedMusic;
         this.musics = updatedMusics;
-        this.$router.push('/listar').then(() => window.location.reload());
+        this.$router.push('/listar-musica').then(() => window.location.reload());
       }
 
-      this.$router.push('/listar').then(() => window.location.reload());
+      this.$router.push('/listar-musica').then(() => window.location.reload());
       this.selectedMusic = null as unknown as Music;
       this.isEditing = false;
     },

@@ -22,8 +22,13 @@
             </nuxt-link>
           </li>
           <li>
-            <nuxt-link to="/listar" class="text-white">
+            <nuxt-link to="/listar-musica" class="text-white">
               <font-awesome-icon :icon="['fas', 'music']" /> Suas Músicas
+            </nuxt-link>
+          </li>
+          <li>
+            <nuxt-link to="/listar-albuns" class="text-white">
+              <font-awesome-icon :icon="['fas', 'compact-disc']" /> Seus Álbuns
             </nuxt-link>
           </li>
           <li>
