@@ -10,8 +10,8 @@
           <button @click="openAddTagModal" class="btn btn-success text-white md:w-auto w-full"><font-awesome-icon :icon="['fas', 'tag']" />  Adicionar Nova Tag</button>
         </div>
 
-        <table class="table-fixed table-zebra md:table-auto w-full border-collapse">
-          <thead class="bg-accent text-secondary font-bold rounded-tr-2xl rounded-tl-2xl">
+        <table class="table-fixed table-zebra md:table-auto w-full border-collapse text-center text-xl">
+          <thead class="bg-primary text-white font-bold rounded-tr-2xl rounded-tl-2xl">
             <tr>
               <th class="px-4 py-2">ID</th>
               <th class="px-4 py-2">Nome</th>
@@ -20,7 +20,7 @@
           </thead>
           <tbody>
             <tr v-for="(tag, index) in tags" :key="index">
-              <td class="bg-neutral border border-secondary text-secondary font-bold px-4 py-2">{{ tag.id }}</td>
+              <td class="bg-accent border border-secondary text-secondary font-bold px-4 py-2">{{ tag.id }}</td>
               <td class="px-4 py-2 font-bold font-roboto">{{ tag.nome }}</td>
               <td class="px-4 py-2 text-center">
                 <button @click="editTag(tag.id)" class="btn btn-success text-white font-bold md:mr-2">
