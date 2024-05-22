@@ -4,7 +4,23 @@
     <section class="2xl:ml-[17%] px-10 py-5">
       <Header page="Lista de Álbuns" icon="compact-disc"></Header>
       <div class="container mx-auto p-7 md:m-10 m-0">
-        <div v-if="loading" class="text-center">Carregando...</div>
+        <nuxt-link to="cadastrar-album" class="btn btn-success font-bold uppercase sm:text-center xl:ml-[14.3rem] text-white shadow-sm mb-5 mr-5">
+          <font-awesome-icon :icon="['fas', 'plus']" />
+          Adicionar novo álbum
+        </nuxt-link>
+
+        <div v-if="loading" class="text-center">
+          <div class="flex flex-wrap justify-center">
+            <div class="w-1/3 skeleton m-3 p-3 py-20 bg-secondary rounded-md"></div>
+            <div class="w-1/3 skeleton m-3 p-3 py-20 bg-secondary rounded-md"></div>
+            <div class="w-1/3 skeleton m-3 p-3 py-20 bg-secondary rounded-md"></div>
+            <div class="w-1/3 skeleton m-3 p-3 py-20 bg-secondary rounded-md"></div>
+            <div class="w-1/3 skeleton m-3 p-3 py-20 bg-secondary rounded-md"></div>
+            <div class="w-1/3 skeleton m-3 p-3 py-20 bg-secondary rounded-md"></div>
+            <div class="w-1/3 skeleton m-3 p-3 py-20 bg-secondary rounded-md"></div>
+            <div class="w-1/3 skeleton m-3 p-3 py-20 bg-secondary rounded-md"></div>
+          </div>
+        </div>
         <div v-else>
           <div v-if="albums && albums.length > 0" class="mt-5 flex flex-wrap justify-center">
             <div v-for="(album, index) in albums" :key="album.id"

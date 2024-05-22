@@ -154,7 +154,7 @@ export default {
         data_nasc: this.data_nasc, 
         cargo: this.cargo, 
         desc: this.desc, 
-        tags: this.tags, 
+        tags: this.selectedTags.map((tag: { id: any; }) => tag.id),
         bannerUrl: uploadedBannerUrl, 
         foto_perfil: uploadedImageUrl 
       }),

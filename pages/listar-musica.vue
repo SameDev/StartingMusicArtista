@@ -4,29 +4,25 @@
     <section class="2xl:ml-[17%] px-10 py-5">
       <Header page="Lista de Músicas" icon="headphones"></Header>
       <div class="container mx-auto p-7 md:m-10 m-0">
-        <div class="w-full text-end">
-          <nuxt-link to="enviar-musica"
-            class="btn btn-success font-bold uppercase text-white shadow-sm"><font-awesome-icon :icon="['fas', 'plus']" />
-            Adicionar Nova Música</nuxt-link>
-        </div>
-        <div v-if="musics && musics.length > 0" class="mt-5 flex flex-wrap justify-center">
-          <div v-for="music in musics" :key="music.id"
-            class="mt-3 p-3 bg-secondary md:w-1/2 xl:w-1/3 md:m-3 w-full rounded-md">
+        <nuxt-link to="enviar-musica" class="btn btn-success font-bold uppercase sm:text-center xl:ml-[14.3rem] text-white shadow-sm mb-5 mr-5">
+          <font-awesome-icon :icon="['fas', 'plus']" />
+          Adicionar Nova Música
+        </nuxt-link>
+        
+        <div v-if="musics && musics.length > 0" class="flex flex-wrap justify-center">
+          <div v-for="music in musics" :key="music.id" class="mt-2 p-2 px-5 bg-secondary md:w-1/2 xl:w-1/3 md:m-2 w-full rounded-md">
             <div class="flex items-center justify-between flex-wrap md:flex-nowrap">
-              <img v-show="music.loadingBtn" @load="music.loadingBtn = true" :src="getMusicImage(music.image_url)"
-                :alt="music.nome" class="object-cover object-center h-20 w-20 mt-3 rounded-md mr-5">
-              <div v-if="!music.loadingBtn"
-                class="loading loading-spinner h-12 w-12 mt-3 mr-5 justify-center items-center"></div>
+              <img v-show="music.loadingBtn" @load="music.loadingBtn = true" :src="getMusicImage(music.image_url)" :alt="music.nome" class="object-cover object-center h-20 w-20 mt-3 rounded-md mr-5">
+              <div v-if="!music.loadingBtn" class="loading loading-spinner h-12 w-12 mt-3 mr-5 justify-center items-center"></div>
               <div v-if="music.loadingBtn" class="flex flex-col">
                 <h3 class="text-xl font-bold">{{ music.nome }}</h3>
                 <p class="text-gray-400 font-bold">{{ music.artista }}</p>
                 <div class="tags inline-block">
-                  <span class="badge badge-accent badge-outline" v-for="tag in music.tags" :key="tag.id">{{ tag.nome
-                  }}</span>
+                  <span class="badge badge-accent badge-outline" v-for="tag in music.tags" :key="tag.id">{{ tag.nome }}</span>
                 </div>
               </div>
               <div v-if="music.loadingBtn" class="flex items-center md:justify-end mt-6 md:m-0">
-                <button @click="playAudio(music)" class="btn btn-info text-white mx-1">
+                <button @click="playAudio(music)" class="btn btn-primary text-white mx-1">
                   <font-awesome-icon v-if="!music.isPlaying" :icon="['fas', 'play']" />
                   <font-awesome-icon v-else :icon="['fas', 'pause']" class="ml-0.5" />
                 </button>
@@ -37,18 +33,17 @@
                   <button @click="openExcluirModal(music)" :id="'my_modal_' + music.id" class="btn btn-error text-white">
                     <font-awesome-icon :icon="['fas', 'trash']" />
                   </button>
-                  <ExcluirModal v-if="isRemoving && selectedMusic === music" :music="selectedMusic"
-                    @fecharModal="handleCloseExcluirModal" @confirmarExclusao="handleConfirmarExclusao" />
+                  <ExcluirModal v-if="isRemoving && selectedMusic === music" :music="selectedMusic" @fecharModal="handleCloseExcluirModal" @confirmarExclusao="handleConfirmarExclusao" />
                 </div>
               </div>
             </div>
           </div>
         </div>
+        
         <div v-else-if="!loading && musics && musics.length === 0">
           Nenhuma música encontrada.
         </div>
         <div v-else>
-          <!-- Renderize qualquer coisa aqui que deseje mostrar enquanto as músicas estão sendo carregadas -->
           <div class="flex flex-wrap justify-center">
             <div class="w-1/3 skeleton m-3 p-3 py-12 bg-secondary rounded-md"></div>
             <div class="w-1/3 skeleton m-3 p-3 py-12 bg-secondary rounded-md"></div>
@@ -60,13 +55,14 @@
             <div class="w-1/3 skeleton m-3 p-3 py-12 bg-secondary rounded-md"></div>
           </div>
         </div>
-        <EditarMusica v-if="isEditing" :music="(selectedMusic as Music)" @musicaEditada="handleMusicaEditada"
-          @fecharModal="handleCloseEditModal" />
+        
+        <EditarMusica v-if="isEditing" :music="(selectedMusic as Music)" @musicaEditada="handleMusicaEditada" @fecharModal="handleCloseEditModal" />
       </div>
       <Error v-if="error" :error-message="errorMessage" />
     </section>
   </div>
 </template>
+
 
 <script lang="ts">
 import { type Music } from "../interfaces/apiRef";

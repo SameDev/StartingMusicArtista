@@ -24,7 +24,7 @@
               </ul>
               
             </div>
-            <nuxt-link to="/listar" class="text-base-100 font-bold text-2xl ml-2 block">
+            <nuxt-link to="/listar-musica" class="text-base-100 font-bold text-2xl ml-2 block">
               <font-awesome-icon :icon="['fas', 'headphones']" /> Ver todas
             </nuxt-link>
           </div>
@@ -40,7 +40,7 @@
       <div class="box-icons xl:overflow-visible overflow-y-hidden overflow-x-auto flex justify-between md:w-full w-full h-40 xl:h-1/4 py-5">
 
         <div class="flex md:space-x-4 md:w-full">
-          <nuxt-link to="/listar" class="bg-[#7E8BBA] md:w-1/4 w-96 h-full rounded-2xl shadow-sm flex justify-center align-center items-center text-7xl text-white md:mr-0 mr-8 tooltip tooltip-top" data-tip="Ver suas músicas">
+          <nuxt-link to="/listar-musica" class="bg-[#7E8BBA] md:w-1/4 w-96 h-full rounded-2xl shadow-sm flex justify-center align-center items-center text-7xl text-white md:mr-0 mr-8 tooltip tooltip-top" data-tip="Ver suas músicas">
             <font-awesome-icon :icon="['fas', 'headphones']" />
           </nuxt-link>
 
@@ -48,8 +48,8 @@
             <NuxtImg class="w-32 h-26" src="/add-song.png" />
           </nuxt-link>
 
-          <nuxt-link to="/" class="bg-[#7EACBA] md:w-1/4 w-96 h-full rounded-2xl shadow-sm flex justify-center align-center items-center text-7xl text-white mr-8 tooltip tooltip-top" data-tip="Alcance">
-            <font-awesome-icon :icon="['fas', 'sliders']" />
+          <nuxt-link to="/listar-albuns" class="bg-[#7EACBA] md:w-1/4 w-96 h-full rounded-2xl shadow-sm flex justify-center align-center items-center text-7xl text-white mr-8 tooltip tooltip-top" data-tip="Ver seus Álbuns">
+            <font-awesome-icon :icon="['fas', 'compact-disc']" />
           </nuxt-link>
 
           <nuxt-link to="/" class="bg-[#CF9368] md:w-1/4 w-96 h-full rounded-2xl shadow-sm flex justify-center align-center items-center text-7xl text-white mr-8 tooltip tooltip-top" data-tip="Seus comentarios">
@@ -60,8 +60,8 @@
             <font-awesome-icon :icon="['fas', 'user-pen']" />
           </nuxt-link>
 
-          <nuxt-link to="/" class="bg-[#9CBC88] md:w-1/4 w-96 h-full rounded-2xl shadow-sm flex justify-center align-center items-center text-7xl text-white tooltip tooltip-top" data-tip="Estátisticas e dados">
-            <font-awesome-icon :icon="['fas', 'chart-simple']" />
+          <nuxt-link to="/" class="bg-[#9CBC88] md:w-1/4 w-96 h-full rounded-2xl shadow-sm flex justify-center align-center items-center text-7xl text-white tooltip tooltip-top" data-tip="Alcance">
+            <font-awesome-icon :icon="['fas', 'sliders']" />
           </nuxt-link>
         </div>
 
