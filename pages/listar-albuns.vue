@@ -4,7 +4,7 @@
     <section class="2xl:ml-[17%] px-10 py-5">
       <Header page="Lista de Álbuns" icon="compact-disc"></Header>
       <div class="container mx-auto p-7 md:m-10 m-0">
-        <nuxt-link to="cadastrar-album" class="btn btn-success font-bold uppercase sm:text-center xl:ml-[14.3rem] text-white shadow-sm mb-5 mr-5">
+        <nuxt-link to="/cadastrar-album" class="btn btn-success font-bold uppercase sm:text-center xl:ml-[14.3rem] text-white shadow-sm mb-5 mr-5">
           <font-awesome-icon :icon="['fas', 'plus']" />
           Adicionar novo álbum
         </nuxt-link>
@@ -34,11 +34,11 @@
                   <h3 class="text-xl font-bold">{{ album.nome }}</h3>
                   <p class="text-gray-400 font-bold">{{ album.artista }}</p>
                   <p class="text-gray-400">{{ formatDate(album.data_lanc) }}</p>
-                  <button @click="showMore(index)" class="btn btn-primary text-white mt-3">
-                    <font-awesome-icon :icon="['fas', 'plus']" />
-                    Mostrar Mais
-                  </button>
-                  <button @click="deleteAlbum(album.id)" class="btn btn-error text-white mt-3">
+                  <nuxt-link :to="'/album/' + album.id" class="btn btn-primary text-white mt-3">
+                    <font-awesome-icon :icon="['fas', 'eye']" />
+                    Ver Detalhes
+                  </nuxt-link>
+                  <button @click="confirmDelete(album.id)" class="btn btn-error text-white mt-3">
                     <font-awesome-icon :icon="['fas', 'trash']" />
                     Excluir Álbum
                   </button>
@@ -51,67 +51,82 @@
           </div>
         </div>
         <div v-if="error" class="text-red-500">{{ errorMessage }}</div>
+
+        <!-- Componente Modal de Confirmação de Exclusão -->
+        <AlbumDeleteModal :show="showDeleteModal" @confirm="deleteAlbum" @cancel="cancelDelete" />
       </div>
     </section>
   </div>
 </template>
 
-<script lang="ts">
-import { type Album } from "../interfaces/apiRef";
+<script>
+import { ref } from 'vue';
 
 export default {
   data() {
     return {
-      albums: [] as Album[],
+      albums: [],
       loading: false,
       error: false,
-      errorMessage: ""
+      errorMessage: "",
+      showDeleteModal: false,
+      albumIdToDelete: null,
+      userID: localStorage.getItem("userID") || ""
     };
-  },
-  beforeMount() {
-    this.fetchAlbums();
   },
   methods: {
     async fetchAlbums() {
-      const userID = localStorage.getItem("userID") || "";
       this.loading = true;
       try {
-        const response = await fetch(`https://starting-music.onrender.com/user/album/${userID}`);
-        if (response.ok) {
-          const data = await response.json();
-          console.log(data);
-          const albuns: Album[] = data.map((album: Album) => ({ ...album}));
-          this.albums = albuns;
-        } else {
-          console.error("Erro ao obter álbuns da API:", response.statusText);
-          this.error = true;
-          this.errorMessage = "Ocorreu um erro ao obter os álbuns.";
+        const response = await fetch(`https://starting-music.onrender.com/user/album/${this.userID}`);
+        if (!response.ok) {
+          throw new Error('Erro ao carregar os álbuns');
         }
-      } catch (error: any) {
-        console.error("Erro na requisição:", error.message);
+        this.albums = await response.json();
+      } catch (error) {
+        console.error('Erro ao carregar os álbuns:', error.message);
         this.error = true;
-        this.errorMessage = "Ocorreu um erro ao obter os álbuns.";
+        this.errorMessage = "Ocorreu um erro ao carregar os álbuns.";
       } finally {
         this.loading = false;
       }
     },
-    formatDate(dateString: string) {
+    formatDate(dateString) {
       const date = new Date(dateString);
-      return date.toLocaleDateString("pt-BR", {
-        year: "numeric",
-        month: "long",
-        day: "numeric"
+      return date.toLocaleDateString('pt-BR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
       });
     },
-    // Método para mostrar mais informações do álbum
-    showMore(index: number) {
-      const album = this.albums[index];
-      // Implemente a lógica para mostrar mais informações do álbum, se necessário
+    confirmDelete(albumId) {
+      this.albumIdToDelete = albumId;
+      this.showDeleteModal = true;
     },
-    // Método para excluir o álbum
-    async deleteAlbum(albumId: number) {
-      // Implemente a lógica para excluir o álbum
-    }
-  }
+    cancelDelete() {
+      this.showDeleteModal = false;
+      this.albumIdToDelete = null;
+    },
+    async deleteAlbum() {
+      const albumId = this.albumIdToDelete;
+      try {
+        const response = await fetch(`https://starting-music.onrender.com/album/${albumId}`, {
+          method: 'DELETE',
+        });
+        if (response.ok) {
+          this.albums = this.albums.filter(album => album.id !== albumId);
+          this.showDeleteModal = false;
+          this.albumIdToDelete = null;
+        } else {
+          throw new Error('Erro ao excluir o álbum');
+        }
+      } catch (error) {
+        console.error('Erro ao excluir o álbum:', error.message);
+      }
+    },
+  },
+  mounted() {
+    this.fetchAlbums();
+  },
 };
 </script>

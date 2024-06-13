@@ -9,6 +9,7 @@ export interface Music {
   loadingBtn: boolean;
   data_lanc: Date;
   isPlaying: boolean
+  duracao: string;
 }
 
 export interface User {
