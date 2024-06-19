@@ -8,11 +8,13 @@
           <div class="spinner">Carregando...</div>
         </div>
         <div class="block w-full" v-else>
-          <div class="mt-3 p-3 bg-secondary w-full rounded-md">
-            <div class="flex">
-              <img :src="album.image_url" class="rounded-md w-64" :alt="album.nome + ' | Starting Music'">
+          <div class="mt-3 p-5 bg-[#12121f] w-full rounded-md">
+          <nuxt-link to="/listar-albuns" class="text-xl font-bold block mb-4"><font-awesome-icon :icon="['fas', 'arrow-left-long']" /></nuxt-link>
+           <div class="flex justify-between items-end">
+            <div class="flex w-[75%]">
+              <img :src="album.image_url" class="rounded-md object-cover object-center w-64 h-64" :alt="album.nome + ' | Starting Music'">
               <div class="info ml-5">
-                <p class="text-gray-400 font-bold">Álbum</p>
+                <p class="text-gray-400 font-bold">{{  album.lancamento }}</p>
                 <h3 class="text-6xl font-bold">{{ album.nome }}</h3>
                 <div class="flex">
                   <p class="text-gray-400 font-bold">{{ album.artista }}</p>
@@ -26,9 +28,57 @@
                 <p>{{ album.desc }}</p>
               </div>
             </div>
+            
+           </div>
+
+            
+
+            <div class="divider divider-end">
+
+              <div class="btngroup flex mr-1">
+                <button @click="deleteAlbum" class="btn btn-primary text-white text-xl mr-1"><font-awesome-icon :icon="['fas', 'pen']" /></button>
+                <button @click="deleteAlbum" class="btn btn-success text-white text-xl mr-1"><font-awesome-icon :icon="['fas', 'plus']" /></button>
+                <button @click="deleteAlbum" class="btn btn-error text-white text-xl"><font-awesome-icon :icon="['fas', 'trash']" /></button>
+              
+              </div>
+            </div>
+            
+            
             <div class="mt-3">
-              <nuxt-link to="/listar-albuns" class="btn btn-primary">Voltar</nuxt-link>
-              <button @click="deleteAlbum" class="btn btn-error ml-3">Excluir Álbum</button>
+              <div v-if="album.musicas && album.musicas.length > 0" class="flex flex-wrap justify-between">
+                <div v-for="musica in album.musicas" :key="musica.id" class="mt-2 p-2 px-5 bg-[#1a1a2b] md:w-[49%] m-1 w-full rounded-md">
+                  <div class="flex items-center justify-between flex-wrap md:flex-nowrap">
+                    <div class="flex items-center">
+                      <div class="mr-3">
+                        <img :src="album.image_url"
+                        :alt="album.nome" class="object-cover object-center w-20 h-20 rounded-md mr-3">
+                      </div>
+                      <div class="flex flex-col">
+                        <h3 class="text-xl font-bold">{{ musica.nome }}</h3>
+                        <p class="text-gray-400 font-bold">{{ musica.artista }}</p>
+                        <div class="tags inline-block">
+                          <span class="badge badge-accent badge-outline" v-for="tag in musica.tags" :key="tag.id">{{ tag.nome }}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex items-center md:justify-end mt-6 md:m-0">
+                      <button class="btn btn-primary text-white mx-1">
+                        <font-awesome-icon :icon="['fas', 'play']" />
+                      </button>
+                      <button class="btn btn-success mr-1 text-white">
+                        <font-awesome-icon :icon="['fas', 'pen']" />
+                      </button>
+                      <div class="aaaaaaa">
+                        <button class="btn btn-error text-white">
+                          <font-awesome-icon :icon="['fas', 'trash']" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>  
+              
+              
             </div>
           </div>
         </div>
