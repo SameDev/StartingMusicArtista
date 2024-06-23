@@ -124,7 +124,7 @@ export default {
 
         this.tagsIds = this.selectedTags.map(tag => tag.code) || [];
 
-        const response = await fetch(`https://starting-music.onrender.com/music/update/${this.editedMusic.id}`, {
+        const response = await fetch(`https://starting-music.onrender.com/music/update/${this.music?.id}`, {
           method: "POST",
           headers: new Headers({
             "Content-Type": "application/json",

@@ -84,16 +84,13 @@
                       <input :id="'nome' + index" type="text" v-model="musica.nome" class="input input-bordered bg-accent w-full text-white" required>
                     </div>
                     <div class="mb-4">
-                      <label :for="'duracao' + index" class="block text-white font-bold text-sm mb-2">Duração (minutos)</label>
-                      <input :id="'duracao' + index" type="number" v-model="musica.duracao" class="input input-bordered bg-accent w-full text-white" required>
+                      <label :for="'duracao' + index" class="block text-white font-bold text-sm mb-2">Duração (mm:ss)</label>
+                      <input :id="'duracao' + index" type="time" v-model="musica.duracao" class="input input-bordered bg-accent text-white w-full" placeholder="mm:ss" required>
                     </div>
-
-
                     <div class="mb-4">
                       <label :for="'audioFile' + index" class="block text-white font-bold text-sm mb-2">Arquivo de Áudio:</label>
                       <input :id="'audioFile' + index" type="file" @change="atualizarAudio(index, $event)" ref="audioFileInput" class="file-input file-input-bordered w-full bg-accent text-white" accept="audio/mp3, audio/wav" required>
                     </div>
-
                     <!-- Botão para remover a música -->
                     <button type="button" @click="removerMusica(index)" class="btn btn-error text-white w-full"><font-awesome-icon :icon="['fas', 'trash']" /> Remover</button>
                     <div class="divider"></div>
@@ -191,13 +188,13 @@ export default {
           artista: this.artista,
           imageUrl: imageUrl,
           date: new Date(this.date).toISOString(),
-          tipoLancamento: this.tipoLancamento, // Inclua este campo
-          artistaId: parseInt(this.userID,10),
+          tipoLancamento: this.tipoLancamento,
+          artistaId: parseInt(this.userID, 10),
           tags: this.selectedTags.map(tag => tag.id),
           musicas: this.musicas.map((musica, index) => ({
             nome: musica.nome,
             url: urlsMusicas[index],
-            duracao: this.formatarDuracao(musica.duracao), // Formatar a duração
+            duracao: musica.duracao, // Converter minutos para segundos
             data_lanc: new Date(this.date).toISOString()
           })),
           desc: this.desc
@@ -229,6 +226,7 @@ export default {
         console.error(error.message);
       }
     },
+
     verificaCampos() {
       if (!this.date || !this.nome || !this.artista || !this.imageUrl || !this.selectedTags.length || !this.musicas.length) {
         this.error = true;
@@ -318,9 +316,12 @@ export default {
       const duracaoNumerica = typeof duracao === 'string' ? parseInt(duracao) : duracao;
       const minutos = Math.floor(duracaoNumerica / 60);
       const segundos = duracaoNumerica % 60;
-      return `${minutos < 10 ? '0' : ''}${minutos}:${segundos < 10 ? '0' : ''}${segundos}`;
-    },
-
+      
+      const minutosFormatado = minutos < 10 ? `0${minutos}` : `${minutos}`;
+      const segundosFormatado = segundos < 10 ? `0${segundos}` : `${segundos}`;
+      
+      return `${minutosFormatado}:${segundosFormatado}`;
+    }
   },
   async mounted() {
     await this.fetchTags();

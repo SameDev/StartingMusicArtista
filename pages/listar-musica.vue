@@ -107,7 +107,6 @@ export default {
         if (response.ok) {
           this.loading = false;
           const data = await response.json();
-          console.log(data)
           const songs: Music[] = data.map((music: Music) => ({ ...music, loadingBtn: false, isPlaying: false }));
           this.musics = songs;
         } else {
