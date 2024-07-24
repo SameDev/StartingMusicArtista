@@ -34,20 +34,17 @@
             <textarea v-model="desc" id="desc" placeholder="Sua descrição" class="input input-bordered bg-accent h-20 pt-2 text-white placeholder-white w-full outline-none" required></textarea>
           </div>
           <div class="mb-4">
-              <label for="tags" class="block text-white font-bold text-sm mb-2">Tags da Música</label>
-                <MultiSelect v-model="selectedTags" :options="allTags" filter optionLabel="name" selectedItemsLabel="{0} tags selecionadas" :maxSelectedLabels="3" class="w-full md:w-20rem input input-bordered bg-accent text-white" />
-            </div>
-            <div class="mb-4">
-              <label for="imageUrl" class="block text-white font-bold text-sm mb-2">Foto de Perfil:</label>
-              <input type="file" id="imageUrl" ref="imageUrlInput" class="file-input file-input-bordered w-full bg-accent text-white" accept="image/*" @change="handleImageUpload">
-
-            </div>
-
-            <div class="mb-4">
-              <label for="bannerUrl" class="block text-white font-bold text-sm mb-2">Imagem do Banner de Perfil:</label>
-              <input type="file" id="bannerUrl" ref="bannerFileInput" class="file-input file-input-bordered w-full bg-accent text-white" accept="image/*" @change="handleBannerUpload">
-            </div>
-
+            <label for="tags" class="block text-white font-bold text-sm mb-2">Tags do Seu Perfil</label>
+            <MultiSelect v-model="selectedTags" :options="allTags" filter optionLabel="name" selectedItemsLabel="{0} tags selecionadas" :maxSelectedLabels="3" class="w-full md:w-20rem input input-bordered bg-accent text-white" />
+          </div>
+          <div class="mb-4">
+            <label for="imageUrl" class="block text-white font-bold text-sm mb-2">Foto de Perfil:</label>
+            <input type="file" id="imageUrl" ref="imageUrlInput" class="file-input file-input-bordered w-full bg-accent text-white" accept="image/*" @change="handleImageUpload">
+          </div>
+          <div class="mb-4">
+            <label for="bannerUrl" class="block text-white font-bold text-sm mb-2">Imagem do Banner de Perfil:</label>
+            <input type="file" id="bannerUrl" ref="bannerFileInput" class="file-input file-input-bordered w-full bg-accent text-white" accept="image/*" @change="handleBannerUpload">
+          </div>
           <button class="btn btn-lg btn-block btn-primary font-bold rounded-md mt-10 bg-gradient-to-br from-primary to-[#282250]"
                   :disabled="envio"
                   type="submit">
@@ -55,7 +52,7 @@
             <div v-else>Cadastrar</div>
           </button>
           <Error v-if="error" :error-message="errorMessage"/>
-          <Success v-if="success" :success-message="successMessage"/>
+          <Success v-if="success" success-message="Cadastro realizado com sucesso!"/>
           <div class="divider my-4"></div>
           <div class="text-base flex justify-center items-center">
             <p class="mr-4">Já é um artista da nossa plataforma?</p>
@@ -76,7 +73,7 @@
 
 <script lang="ts">
 import type { Tags } from '~/interfaces/apiRef';
-import { storage, FireRef, uploadBytes, getDownloadURL } from '~/composables/firebase'
+import { storage, FireRef, uploadBytes, getDownloadURL } from '~/composables/firebase';
 
 const api_url = "https://starting-music.onrender.com/user/register";
 
@@ -94,17 +91,14 @@ export default {
       data_nasc: "",
       cargo: "",
       desc: "",
-      tags: [] as Tags[],
-      selectedTags: ref(), 
+      selectedTags: [] as {code: number}[], 
       allTags: [] as Tags[],
-      banner: "",
-      tagsIds: [] as Number[],
       imageUrl: "",
-      bannerUrl: ""
+      bannerUrl: "",
     };
   },
   beforeMount() {
-    this.fetchTags()
+    this.fetchTags();
   },
   methods: {
     async fetchTags() {
@@ -115,10 +109,7 @@ export default {
                 const uniqueTagsSet = new Set(tagsData.tags.flatMap((tag: Tags) =>
                   JSON.stringify({ name: tag.nome, code: tag.id })
                 ));
-
                 this.allTags = Array.from(uniqueTagsSet).map((tag) => JSON.parse(tag as string));
-
-
             }
             else {
                 console.error("Falha ao buscar tags da API");
@@ -128,100 +119,12 @@ export default {
             console.error("Erro durante a busca de tags:", error.message);
         }
     },
-    async fazerCadastro() {
-  this.envio = true;
-  
-  try {
-    // Upload das imagens
-    const imageRef = FireRef(storage, `images/${this.nome}-${Date.now()}`);
-    const imageSnapshot = await uploadBytes(imageRef, this.dataURLtoBlob(this.imageUrl));
-    const uploadedImageUrl = await getDownloadURL(imageSnapshot.ref);
-
-    const bannerRef = FireRef(storage, `banners/${this.nome}-${Date.now()}`);
-    const bannerSnapshot = await uploadBytes(bannerRef, this.dataURLtoBlob(this.bannerUrl));
-    const uploadedBannerUrl = await getDownloadURL(bannerSnapshot.ref);
-
-    // Envio do formulário de cadastro para a API
-    const cadastroOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ 
-        nome: this.nome, 
-        email: this.email, 
-        senha: this.senha, 
-        data_nasc: this.data_nasc, 
-        cargo: this.cargo, 
-        desc: this.desc, 
-        tags: this.selectedTags.map((tag: { id: any; }) => tag.id),
-        bannerUrl: uploadedBannerUrl, 
-        foto_perfil: uploadedImageUrl 
-      }),
-    };
-
-    const cadastroResponse = await fetch(api_url, cadastroOptions);
-    const cadastroData = await cadastroResponse.json();
-
-    if (!cadastroResponse.ok) {
-      throw new Error(cadastroData.Error);
-    }
-
-    // Exibir mensagem de sucesso
-    this.success = true;
-    this.successMessage = "Cadastro realizado com sucesso!";
-
-    console.log(cadastroData)
-
-    if (cadastroData.user) {
-      localStorage.setItem('userID', cadastroData.user.id);
-      localStorage.setItem('userEmail', this.email);
-      localStorage.setItem('userNome', this.nome);
-      localStorage.setItem('userPic', cadastroData.user.foto_perfil);
-      localStorage.setItem('userCargo', this.cargo);
-      localStorage.setItem('userTags', JSON.stringify(this.tags) || "[]");
-      localStorage.setItem('userDesc', this.desc);
-      localStorage.setItem('userNasc', this.data_nasc);
-      localStorage.setItem('userBanner', uploadedBannerUrl);
-
-      const jwtToken = cadastroResponse.headers.get('Authorization');
-      if (jwtToken) {
-        this.armazenarToken(jwtToken);
-      } else {
-        throw new Error("Token JWT não encontrado na resposta da API!");
-      }
-
-      this.redirecionarAposCadastro();
-    } else {
-      throw new Error("Dados do usuário não retornados após o cadastro.");
-    }
-
-  } catch (error) {
-    console.error("Erro durante o cadastro:", error);
-    this.error = true;
-    this.errorMessage = error.message || "Erro ao enviar solicitação.";
-  } finally {
-    this.envio = false;
-  }
-},
-
-
-    armazenarToken(token: string) {
-      const cookieToken = useCookie("jwtToken", {
-        maxAge: 8 * 60 * 60, 
-        secure: true,
-        sameSite: true, 
-      });
-      cookieToken.value = token;
-    },
-    redirecionarAposCadastro() {
-      this.$router.push('/').then(() => window.location.reload());
-    },
     handleImageUpload(event: Event) {
       const imageFile = (event.target as HTMLInputElement).files?.[0];
       if (imageFile) {
         const imageReader = new FileReader();
         imageReader.onloadend = () => {
+          console.log("Image URL:", imageReader.result);
           this.imageUrl = imageReader.result as string;
         };
         imageReader.readAsDataURL(imageFile);
@@ -232,6 +135,7 @@ export default {
       if (bannerFile) {
         const bannerReader = new FileReader();
         bannerReader.onloadend = () => {
+          console.log("Banner URL:", bannerReader.result);
           this.bannerUrl = bannerReader.result as string;
         };
         bannerReader.readAsDataURL(bannerFile);
@@ -249,6 +153,99 @@ export default {
       }
       return new Blob([u8arr], { type: mime });
     },
+    async fazerCadastro() {
+      this.envio = true;
+
+      try {
+        const imageRef = FireRef(storage, `images/${this.nome}-${Date.now()}`);
+        const imageSnapshot = await uploadBytes(imageRef, this.dataURLtoBlob(this.imageUrl));
+        const uploadedImageUrl = await getDownloadURL(imageSnapshot.ref);
+
+        const bannerRef = FireRef(storage, `banners/${this.nome}-${Date.now()}`);
+        const bannerSnapshot = await uploadBytes(bannerRef, this.dataURLtoBlob(this.bannerUrl));
+        const uploadedBannerUrl = await getDownloadURL(bannerSnapshot.ref);
+
+        const cadastroOptions = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            nome: this.nome, 
+            email: this.email, 
+            senha: this.senha, 
+            data_nasc: this.data_nasc, 
+            cargo: this.cargo, 
+            desc: this.desc, 
+            tags: this.selectedTags.map(tag => tag.code), 
+            banner: uploadedBannerUrl, 
+            foto_perfil: uploadedImageUrl 
+          }),
+        };
+
+        const cadastroResponse = await fetch(api_url, cadastroOptions);
+        const cadastroData = await cadastroResponse.json();
+
+        if (!cadastroResponse.ok) {
+          throw new Error(cadastroData.Error);
+        }
+
+        this.success = true;
+
+        const authorizationHeader = cadastroResponse.headers.get('Authorization');
+
+        const jwtToken = authorizationHeader;
+
+        if (jwtToken) {
+          const cookieToken = useCookie("jwtToken", {
+            maxAge: 8 * 60 * 60,
+            secure: true,
+            sameSite: true,
+          });
+          cookieToken.value = jwtToken;
+
+          
+          const { id, email, nome, cargo, foto_perfil, tags, desc, data_nasc, banner_perfil } = cadastroData.user;
+            if (cargo === "USUARIO") {
+              this.envio = false;
+              this.error = true;
+              this.errorMessage = "Você não tem permissões para entrar aqui!";
+              return;
+            }
+
+            localStorage.setItem('userID', id);
+            localStorage.setItem('userEmail', email);
+            localStorage.setItem('userNome', nome);
+            localStorage.setItem('userPic', foto_perfil);
+            localStorage.setItem('userCargo', cargo);
+            localStorage.setItem('userTags', JSON.stringify(tags) || "[]");
+            localStorage.setItem('userDesc', desc);
+            localStorage.setItem('userNasc', data_nasc)
+            localStorage.setItem('userBanner', banner_perfil)
+
+          this.$router.push('/').then(() => window.location.reload());
+          return cadastroData;
+          
+        } else {
+          this.error = true;
+          this.errorMessage = cadastroData.message;
+          this.envio = false;
+        }
+        
+      } catch (error) {
+        this.error = true;
+        this.errorMessage = `Erro durante o cadastro: ${error.message}`;
+        console.error("Erro durante o cadastro:", error.message);
+      } finally {
+        this.envio = false;
+      }
+    },
   },
 };
 </script>
+
+<style scoped>
+input[type="date"]::-webkit-calendar-picker-indicator {
+  background-color: #121212;
+}
+</style>

@@ -8,7 +8,6 @@
           <input type="text" name="email" placeholder="Insira seu email" class="mt-8 input input-bordered bg-accent text-white placeholder-white mb-5 w-full  outline-none" required/> 
           <div class="relative">
             <input type="password" name="senha" placeholder="Insira sua senha" class="input input-bordered bg-accent placeholder-white text-white w-full outline-none mb-12" required/>
-            <!-- <font-awesome-icon :icon="['fas', 'eye']" class="bi bi-eye absolute top-1/4 right-3 -translate-y-1/2"/>    -->
           </div>
           <button class="btn btn-lg btn-block btn-primary block font-bold rounded-md mt-10 bg-gradient-to-br from-primary to-[#282250]"
                 :disabled="envio"

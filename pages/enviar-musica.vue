@@ -100,7 +100,7 @@ export default {
       artista: "",
       url: "",
       imageUrl: "",
-      duracao: "", // Adicionado para a duração da música
+      duracao: "",
       date: null as unknown as Date,
       tags: [] as Tags[],
       selectedTags: ref(), 

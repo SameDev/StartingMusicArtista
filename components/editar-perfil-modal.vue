@@ -25,7 +25,7 @@
         </div>
         <div class="mb-4">
           <label for="imageUrl" class="block text-white font-bold text-sm mb-2">Foto de Perfil:</label>
-          <input type="file" id="imageUrl" @change="atualizarImagem" ref="imageUrlInput" class="file-input file-input-bordered w-full bg-accent text-white" accept="image/*">
+          <input type="file" id="imageUrl" @change="atualizarImagem" ref="imageUrlInput" class="file-input file-input-bordered w-full bg-accent text-white" accept="image/jpeg image/png image/webp">
         </div>
 
         <div class="mb-4">
@@ -52,6 +52,7 @@
 </template>
 
 <script lang="ts">
+import Compressor from 'compressorjs';
 import type { Tags, User } from '~/interfaces/apiRef';
 import { storage, FireRef, uploadBytes, getDownloadURL } from '~/composables/firebase'
 
@@ -197,21 +198,37 @@ export default {
     atualizarImagem(event: Event) {
       const imageFile = (event.target as HTMLInputElement).files?.[0];
       if (imageFile) {
-        const imageReader = new FileReader();
-        imageReader.onloadend = () => {
-          this.userPic = imageReader.result as string;
-        };
-        imageReader.readAsDataURL(imageFile);
+        new Compressor(imageFile, {
+          quality: 0.6,
+          success: (compressedImage) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              this.userPic = reader.result as string;
+            };
+            reader.readAsDataURL(compressedImage);
+          },
+          error(err) {
+            console.log(err.message);
+          },
+        });
       }
     },
     atualizarBanner(event: Event) {
       const bannerFile = (event.target as HTMLInputElement).files?.[0];
       if (bannerFile) {
-        const imageReader = new FileReader();
-        imageReader.onloadend = () => {
-          this.userBanner = imageReader.result as string;
-        };
-        imageReader.readAsDataURL(bannerFile);
+        new Compressor(bannerFile, {
+          quality: 0.6,
+          success: (compressedImage) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              this.userBanner = reader.result as string;
+            };
+            reader.readAsDataURL(compressedImage);
+          },
+          error(err) {
+            console.log(err.message);
+          },
+        });
       }
     },
     

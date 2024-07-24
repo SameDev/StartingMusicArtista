@@ -26,6 +26,7 @@
     "@fortawesome/vue-fontawesome": "^3.0.5",
     "@pinia/nuxt": "^0.5.1",
     "@vueform/nuxt": "^1.4.0",
+    "compressorjs": "^1.2.1",
     "firebase": "^10.8.0",
     "jwt-decode": "^4.0.0",
     "nuxt-icons": "^3.2.1",
