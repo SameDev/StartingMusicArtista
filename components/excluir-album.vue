@@ -1,28 +1,66 @@
 <template>
-    <div v-if="show" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-        <div class="bg-white p-5 rounded-lg">
-        <h3 class="text-lg font-bold">Confirmar Exclusão</h3>
-        <p>Tem certeza que deseja excluir este álbum?</p>
-        <div class="flex justify-end mt-5">
-            <button @click="cancel" class="btn btn-secondary mr-3">Cancelar</button>
-            <button @click="confirm" class="btn btn-error">Excluir</button>
-        </div>
-        </div>
+  <section class="px-10 py-5 w-full h-full fixed top-0 left-0 flex items-center justify-center bg-base-300 bg-opacity-75 shadow-md">
+    <div class="modal-box">
+      <div class="modal-action">
+        <button @click="fecharModal()" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+      </div>
+      <h3 class="font-bold text-xl">Você deseja mesmo excluir?</h3>
+      <p class="py-4">Essa ação é irreversível! Se você confirmar não terá como recuperar novamente!</p>
+      <p class="font-bold">Você está excluindo:</p>
+      <div class="flex items-center justify-between m-3 p-3 bg-secondary rounded-md shadow-md">
+          <div class="flex items-center">
+            <img :src="getAlbumImage(album.image_url)" :alt="album.nome" class="object-cover object-center h-20 w-20 mt-3 rounded-md mr-5">
+            <div>
+              <h3 class="text-xl font-bold">{{ album.nome }}</h3>
+              <p class="text-gray-400 font-bold">{{ album.artista }}</p>
+            </div>
+          </div>
+      </div>
+        <button
+          @click="confirmarExclusao"
+          class="btn btn-error text-white w-full"
+          :class="{ 'disabled': loadingBtn }"
+          :disabled="loadingBtn"
+        > 
+        <div class="loading loading-spinner" v-if="loadingBtn"></div>
+        <p v-else>Excluir</p>
+      </button>
     </div>
+  </section>
 </template>
 
-<script>
+<script lang="ts">
 export default {
-  props: {
-    show: Boolean,
-  },
-  methods: {
-    confirm() {
-      this.$emit('confirm');
-    },
-    cancel() {
-      this.$emit('cancel');
+  data() {
+    return {
+      loadingBtn: false
     }
-  }
-}
+  },
+  props: ['album'] ,
+  methods: {
+    confirmarExclusao() {
+      setTimeout(() => {this.$emit('confirmarExclusao', this.album.id,  this.loadingBtn = true)}, 100);
+    },
+    fecharModal() {
+      this.$emit("fecharModal");
+    },
+    getAlbumImage(imageUrl: string) {
+      if (!imageUrl || imageUrl === "null" || imageUrl === undefined || imageUrl === "") {
+        return "/img-placeholder.png";
+      }
+
+      const img = new Image();
+      img.src = imageUrl;
+
+      img.onerror = () => {
+        this.handleImageError();
+      };
+
+      return imageUrl;
+    },
+    handleImageError() {
+      this.album.image_url = "";
+    },
+  },
+};
 </script>

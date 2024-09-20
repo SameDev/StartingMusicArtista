@@ -11,24 +11,17 @@
 
         <div v-if="loading" class="text-center">
           <div class="flex flex-wrap justify-center">
-            <div class="w-1/3 skeleton m-3 p-3 py-20 bg-secondary rounded-md"></div>
-            <div class="w-1/3 skeleton m-3 p-3 py-20 bg-secondary rounded-md"></div>
-            <div class="w-1/3 skeleton m-3 p-3 py-20 bg-secondary rounded-md"></div>
-            <div class="w-1/3 skeleton m-3 p-3 py-20 bg-secondary rounded-md"></div>
-            <div class="w-1/3 skeleton m-3 p-3 py-20 bg-secondary rounded-md"></div>
-            <div class="w-1/3 skeleton m-3 p-3 py-20 bg-secondary rounded-md"></div>
-            <div class="w-1/3 skeleton m-3 p-3 py-20 bg-secondary rounded-md"></div>
-            <div class="w-1/3 skeleton m-3 p-3 py-20 bg-secondary rounded-md"></div>
+            <div v-for="n in 8" :key="n" class="w-1/3 skeleton m-3 p-3 py-20 bg-secondary rounded-md"></div>
           </div>
         </div>
+
         <div v-else>
           <div v-if="albums && albums.length > 0" class="mt-5 flex flex-wrap justify-center">
             <div v-for="(album, index) in albums" :key="album.id"
               class="mt-3 p-3 bg-secondary md:w-1/2 xl:w-1/3 md:m-3 w-full rounded-md">
               <div class="flex items-center justify-between flex-wrap md:flex-nowrap">
                 <div class="w-1/2 mr-3">
-                  <img :src="album.image_url"
-                  :alt="album.nome" class="object-cover object-center w-52 h-52  mt-3 rounded-md mr-5">
+                  <img :src="album.image_url" :alt="album.nome" class="object-cover object-center w-52 h-52 mt-3 rounded-md mr-5">
                 </div>
                 <div class="flex flex-col w-1/2">
                   <h3 class="text-xl font-bold">{{ album.nome }}</h3>
@@ -38,7 +31,7 @@
                     <font-awesome-icon :icon="['fas', 'eye']" />
                     Ver Detalhes
                   </nuxt-link>
-                  <button @click="confirmDelete(album.id)" class="btn btn-error text-white mt-3">
+                  <button @click="openDeleteModal(album)" class="btn btn-error text-white mt-1">
                     <font-awesome-icon :icon="['fas', 'trash']" />
                     Excluir Álbum
                   </button>
@@ -50,31 +43,36 @@
             Nenhum álbum encontrado.
           </div>
         </div>
-        <div v-if="error" class="text-red-500">{{ errorMessage }}</div>
 
-        <!-- Componente Modal de Confirmação de Exclusão -->
-        <AlbumDeleteModal :show="showDeleteModal" @confirm="deleteAlbum" @cancel="cancelDelete" />
+        <ExcluirModal v-if="isRemoving && selectedAlbum" :album="selectedAlbum" @fecharModal="closeDeleteModal" @confirmarExclusao="handleConfirmarExclusao" />
+        <div v-if="error" class="text-red-500">{{ errorMessage }}</div>
       </div>
     </section>
   </div>
 </template>
 
-<script>
-import { ref } from 'vue';
+<script lang="ts">
+import { type Album } from '~/interfaces/apiRef';
 
 export default {
   data() {
     return {
-      albums: [],
+      albums: [] as Album[],
       loading: false,
       error: false,
-      errorMessage: "",
-      showDeleteModal: false,
-      albumIdToDelete: null,
-      userID: localStorage.getItem("userID") || ""
+      errorMessage: '',
+      selectedAlbum: null as unknown as Album,
+      isRemoving: false,
+      userID: localStorage.getItem('userID') || '',
+      jwtToken: ""
     };
   },
+  beforeMount() {
+      const cookieToken = useCookie("jwtToken");
+      this.jwtToken = cookieToken.value as string;
+    },
   methods: {
+    
     async fetchAlbums() {
       this.loading = true;
       try {
@@ -86,12 +84,12 @@ export default {
       } catch (error) {
         console.error('Erro ao carregar os álbuns:', error.message);
         this.error = true;
-        this.errorMessage = "Ocorreu um erro ao carregar os álbuns.";
+        this.errorMessage = 'Ocorreu um erro ao carregar os álbuns.';
       } finally {
         this.loading = false;
       }
     },
-    formatDate(dateString) {
+    formatDate(dateString: string | number | Date) {
       const date = new Date(dateString);
       return date.toLocaleDateString('pt-BR', {
         year: 'numeric',
@@ -99,29 +97,35 @@ export default {
         day: 'numeric',
       });
     },
-    confirmDelete(albumId) {
-      this.albumIdToDelete = albumId;
-      this.showDeleteModal = true;
+    openDeleteModal(album: Album) {
+      this.selectedAlbum = album;
+      this.isRemoving = true;
     },
-    cancelDelete() {
-      this.showDeleteModal = false;
-      this.albumIdToDelete = null;
+    closeDeleteModal() {
+      this.selectedAlbum = null as unknown as Album;
+      this.isRemoving = false;
     },
-    async deleteAlbum() {
-      const albumId = this.albumIdToDelete;
+    async handleConfirmarExclusao(albumId: number) {
+      await this.deleteAlbum(albumId);
+      this.closeDeleteModal();
+    },
+    async deleteAlbum(albumId: number) {
       try {
-        const response = await fetch(`https://starting-music.onrender.com/album/${albumId}`, {
+        const response = await fetch(`https://starting-music.onrender.com/album/delete/${albumId}`, {
           method: 'DELETE',
+          headers: {
+            Authorization: `${this.jwtToken}`,
+          },
         });
         if (response.ok) {
-          this.albums = this.albums.filter(album => album.id !== albumId);
-          this.showDeleteModal = false;
-          this.albumIdToDelete = null;
+          this.albums = this.albums.filter((album) => album.id !== albumId);
         } else {
           throw new Error('Erro ao excluir o álbum');
         }
       } catch (error) {
         console.error('Erro ao excluir o álbum:', error.message);
+        this.error = true;
+        this.errorMessage = 'Ocorreu um erro ao excluir o álbum.';
       }
     },
   },

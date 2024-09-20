@@ -22,14 +22,6 @@
             <input type="date" v-model="data_nasc" id="data_nasc" class="input input-bordered bg-accent text-white placeholder-white w-full outline-none" required/>
           </div>
           <div class="flex flex-col">
-            <label for="cargo" class="text-white">Cargo:</label>
-            <select v-model="cargo" id="cargo" class="input input-bordered bg-accent text-white placeholder-white w-full outline-none" required>
-              <option value="">Selecione o cargo</option>
-              <option value="USUARIO">Usuário</option>
-              <option value="ARTISTA">Artista</option>
-            </select>
-          </div>
-          <div class="flex flex-col">
             <label for="desc" class="text-white">Descrição:</label>
             <textarea v-model="desc" id="desc" placeholder="Sua descrição" class="input input-bordered bg-accent h-20 pt-2 text-white placeholder-white w-full outline-none" required></textarea>
           </div>
@@ -89,7 +81,6 @@ export default {
       email: "",
       senha: "",
       data_nasc: "",
-      cargo: "",
       desc: "",
       selectedTags: [] as {code: number}[], 
       allTags: [] as Tags[],
@@ -175,7 +166,7 @@ export default {
             email: this.email, 
             senha: this.senha, 
             data_nasc: this.data_nasc, 
-            cargo: this.cargo, 
+            cargo: "ARTISTA", 
             desc: this.desc, 
             tags: this.selectedTags.map(tag => tag.code), 
             banner: uploadedBannerUrl, 
@@ -206,12 +197,7 @@ export default {
 
           
           const { id, email, nome, cargo, foto_perfil, tags, desc, data_nasc, banner_perfil } = cadastroData.user;
-            if (cargo === "USUARIO") {
-              this.envio = false;
-              this.error = true;
-              this.errorMessage = "Você não tem permissões para entrar aqui!";
-              return;
-            }
+
 
             localStorage.setItem('userID', id);
             localStorage.setItem('userEmail', email);
