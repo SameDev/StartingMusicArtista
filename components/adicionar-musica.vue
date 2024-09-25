@@ -59,7 +59,8 @@
       data_lanc: {
         type: Date,
         required: true
-      }
+      },
+      artistaId: Number
     },
     data() {
       return {
@@ -116,6 +117,7 @@
             body: JSON.stringify({
               nome: this.novaMusica.nome,
               artista: this.novaMusica.artista,
+              artistaId: this.novaMusica.artistaId,
               url: audioUrl,
               data_lanc: this.data_lanc,
               imageUrl: imageUrl,

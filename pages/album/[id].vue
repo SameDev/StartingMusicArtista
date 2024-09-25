@@ -84,7 +84,8 @@
     </section>
     
     <!-- Adicionar Música Modal -->
-    <AdicionarMusica v-if="isAdding" :albumId="album.id" :data_lanc="album.data_lanc" @musicaAdicionada="handleMusicaAdicionada" @fecharModal="handleCloseAddMusicModal" />
+    <AdicionarMusica v-if="isAdding" :albumId="album.id" :data_lanc="album.data_lanc" @musicaAdicionada="handleMusicaAdicionada" @fecharModal="handleCloseAddMusicModal"
+    :artistaId="artistaId" />
     
   </div>
 </template>
@@ -108,6 +109,7 @@ export default {
       isAdding: false,
       audioPlayer: null as unknown as HTMLAudioElement,
       currentPlayingMusic: null as unknown as Music | null,
+      artistaId: localStorage.getItem("userID")
     };
   },
   async beforeMount() {
