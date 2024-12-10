@@ -47,11 +47,12 @@
       @tag-removed="handleTagRemoved"
       :tag="tagToRemove"
       @close="fecharModal"/>
+      
       <EditarTag v-if="showEditTagModal" 
       @close="closeEditTagModal" 
       @tag-updated="handleTagUpdated" 
-      :tagId="tagToEdit.id" 
-      :tagName="tagToEdit.nome" />
+      :tagId="tagToEdit?.id" 
+      :tagName="tagToEdit?.nome" />
     </section>
   </div>
   <Loading v-if="loading"/>
@@ -113,7 +114,7 @@ export default {
     fecharModal() {
       this.showRemoveTagModal = false;
     },
-    editTag(tagId) {
+    editTag(tagId: number) {
       const tag = this.tags.find(tag => tag.id === tagId);
       if (tag) {
         this.tagToEdit = tag;
@@ -135,14 +136,14 @@ export default {
       this.showEditTagModal = false;
       this.tagToEdit = null;
     },
-    handleTagUpdated(updatedTag) {
+    handleTagUpdated(updatedTag: Tags) {
       const index = this.tags.findIndex(tag => tag.id === updatedTag.id);
       if (index !== -1) {
         this.tags[index] = updatedTag;
       }
       this.closeEditTagModal();
     },
-    goToPage(page) {
+    goToPage(page: number) {
       if (page >= 1 && page <= this.totalPages) {
         this.currentPage = page;
         this.fetchTags();

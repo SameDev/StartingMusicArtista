@@ -49,7 +49,7 @@
           <!-- ADMIN -->
           <div v-if="userCargo === 'ADMIN'" class="divider"><font-awesome-icon :icon="['fas', 'user-secret']" /> ADMIN</div>
           <li v-if="userCargo === 'ADMIN'">
-            <nuxt-link  to="/" class="text-white">
+            <nuxt-link  to="/gerenciar-usuarios" class="text-white">
               <font-awesome-icon :icon="['fas', 'user-gear']" /> Gerenciar Usuarios
             </nuxt-link>
           </li>

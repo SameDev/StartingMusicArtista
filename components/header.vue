@@ -1,5 +1,5 @@
 <template>
-    <div class="2xl:ml-0 ml-12  w-full h-[9vh] flex justify-between items-center py-2">
+    <div class="2xl:ml-0 ml-12  w-full h-[9vh] flex justify-between items-center py-2 z-20">
         <div class="items-center text-3xl hidden sm:flex">
             <font-awesome-icon :icon="['fas', icon]" class="mr-2" /> 
             <h2 class="font-nunit font-bold text-3xl mt-1">{{ page }}</h2>
