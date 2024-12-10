@@ -53,7 +53,7 @@
         </form>
       </div>
       <div class="md:w-1/2 hidden md:flex flex-col items-center justify-center">
-        <NuxtImg class="rounded-2xl mb-5 w-full md:max-w-md" src="/login.jpg"/>
+        <NuxtImg class="rounded-2xl mb-5 w-full md:max-w-md" src="/login.webp"/>
         <div class="logo flex items-center justify-center">
           <NuxtImg class="w-20 h-20" src="/logo.svg"/>
           <h2 class="ml-4 font-bold font-nunit">Starting Music</h2>
