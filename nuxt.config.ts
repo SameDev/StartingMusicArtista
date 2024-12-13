@@ -16,7 +16,12 @@ export default defineNuxtConfig({
     head: {
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1',
-      title: "Starting Music"
+      title: "Starting Music",
+      meta: [
+        { name: 'description', content: 'Starting Music é uma plataforma na call permite artistas emergentes divulgarem seu trabalho, onde suas músicas poderão ser alcançadas por seus ouvintes.' },
+        { name: 'robots', content: 'none'},
+        { name: 'twitter:image', content: 'https://starting-music-artista.vercel.app/_vercel/image?url=/logo.svg&w=1536&q=100'}
+      ],
     }
   },
   ssr: false
