@@ -43,7 +43,7 @@
                 </nuxt-link>
               </div>
               <div v-else class="text-center">
-                <nuxt-link to="/enviar-musica" class="text-lg font-bold text-base-100">
+                <nuxt-link to="/enviar-musica" class="text-lg font-bold text-white">
                   <font-awesome-icon :icon="['fas', 'file-circle-plus']" />
                   Publique sua primeira música!
                 </nuxt-link>
