@@ -60,7 +60,7 @@
           </li>
         </ul>
       </nav>
-      <div class="logo flex items-center justify-center fixed bottom-0 left-0 w-full mb-5">
+      <div class="logo hidden md:flex items-center justify-center fixed bottom-0 left-0 w-full mb-5">
         <NuxtImg class="w-20 h-20" src="/logo.png" />
         <h2 class="ml-4 font-bold font-nunit">Starting Music</h2>
       </div>

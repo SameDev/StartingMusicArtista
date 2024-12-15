@@ -44,8 +44,8 @@
               <label for="tipoLancamento" class="block text-white font-bold text-sm mb-2">Tipo de Lançamento</label>
               <select id="tipoLancamento" v-model="tipoLancamento" class="input input-bordered bg-accent w-full text-white" required>
                 <option value="EP">EP</option>
-                <option value="Álbum">Álbum</option>
-                <option value="Single" selected>Single</option>
+                <option value="ALBUM">Álbum</option>
+                <option value="SINGLE" selected>Single</option>
               </select>
             </div>
 
@@ -131,7 +131,7 @@ export default {
       artista: "",
       imageUrl: "",
       date: new Date(),
-      tipoLancamento: "", // Novo campo para o tipo de lançamento
+      tipoLancamento: "",
       tags: [] as Tags[],
       selectedTags: [] as Tags[],
       allTags: [] as Tags[],
@@ -166,12 +166,10 @@ export default {
       this.loading = true;
       if (!this.verificaCampos()) return;
       try {
-        // Upload de imagem do álbum
         const imageRef = FireRef(storage, `images/${this.nome}-${Date.now()}`);
         const imageSnapshot = await uploadBytes(imageRef, this.dataURLtoBlob(this.imageUrl));
         const imageUrl = await getDownloadURL(imageSnapshot.ref);
 
-        // Upload de músicas do álbum
         const musicasPromises = this.musicas.map(async (musica) => {
           if (musica.arquivo) {
             const audioRef = FireRef(storage, `audio/${musica.nome}-${Date.now()}`);
@@ -182,25 +180,23 @@ export default {
         });
         const urlsMusicas = await Promise.all(musicasPromises);
 
-        // Dados do álbum para enviar ao backend
         const albumData = {
           nome: this.nome,
           artista: this.artista,
           imageUrl: imageUrl,
           date: new Date(this.date).toISOString(),
-          tipoLancamento: this.tipoLancamento,
+          lancamento: this.tipoLancamento,
           artistaId: parseInt(this.userID, 10),
           tags: this.selectedTags.map(tag => tag.id),
           musicas: this.musicas.map((musica, index) => ({
             nome: musica.nome,
             url: urlsMusicas[index],
-            duracao: musica.duracao, // Converter minutos para segundos
+            duracao: musica.duracao,
             data_lanc: new Date(this.date).toISOString()
           })),
           desc: this.desc
         };
 
-        // Enviar dados do álbum para o backend
         const response = await fetch("https://starting-music.onrender.com/album/create", {
           method: "POST",
           headers: {
@@ -234,7 +230,6 @@ export default {
         this.loading = false;
         return false;
       } else {
-        // Verificar se cada música tem uma duração válida
         for (const musica of this.musicas) {
           if (!musica.duracao || musica.duracao <= 0) {
             this.error = true;
@@ -251,7 +246,7 @@ export default {
         const response = await fetch("https://starting-music.onrender.com/tags");
         if (response.ok) {
           const tagsData = await response.json();
-          console.log(tagsData); // Verificar se os dados estão corretos
+          console.log(tagsData);
           this.allTags = tagsData.tags;
         } else {
           console.error("Falha ao buscar tags da API");

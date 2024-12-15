@@ -12,34 +12,34 @@
             <nuxt-link to="/listar-albuns" class="text-xl font-bold block mb-4">
               <font-awesome-icon :icon="['fas', 'arrow-left-long']" />
             </nuxt-link>
-            <div class="flex justify-between items-end">
-              <div class="flex w-[75%]">
-                <img :src="album.image_url" class="rounded-md object-cover object-center w-64 h-64" :alt="album.nome + ' | Starting Music'">
-                <div class="info ml-5">
-                  <p class="text-gray-400 font-bold">{{ album.lancamento }}</p>
-                  <h3 class="text-6xl font-bold">{{ album.nome }}</h3>
-                  <div class="flex">
-                    <p class="text-gray-400 font-bold">{{ album.artista }}</p>
-                    <div class="mx-1"> • </div>
-                    <p class="text-gray-400">{{ new Date(album.data_lanc).getFullYear() }}</p>
-                    <div class="mx-1"> • </div>
-                    <p class="text-gray-400">{{ album.musicas.length }} músicas</p>
-                    <div class="mx-1"> • </div>
-                    <p class="text-gray-400">{{ formatDuration(totalDuration) }}</p>
-                  </div>
-                  <p>{{ album.desc }}</p>
+            <div class="flex flex-wrap justify-between items-start">
+              <img :src="album.image_url" 
+                   class="rounded-md object-cover object-center w-full sm:w-64 h-64 mb-5 sm:mb-0" 
+                   :alt="album.nome + ' | Starting Music'">
+              <div class="ml-0 sm:ml-5 w-full sm:w-[calc(100%-18rem)]">
+                <p class="text-gray-400 font-bold">{{ album.lancamento }}</p>
+                <h3 class="text-3xl sm:text-6xl font-bold break-words">{{ album.nome }}</h3>
+                <div class="flex flex-wrap items-center text-sm sm:text-base">
+                  <p class="text-gray-400 font-bold">{{ album.artista }}</p>
+                  <div class="mx-1"> • </div>
+                  <p class="text-gray-400">{{ new Date(album.data_lanc).getFullYear() }}</p>
+                  <div class="mx-1"> • </div>
+                  <p class="text-gray-400">{{ album.musicas.length }} músicas</p>
+                  <div class="mx-1"> • </div>
+                  <p class="text-gray-400">{{ formatDuration(totalDuration) }}</p>
                 </div>
+                <p class="text-sm text-pretty break-words">{{ album.desc }}</p>
               </div>
             </div>
             <div class="divider divider-end">
               <div class="btngroup flex mr-1">
-                <button @click="editAlbum" class="btn btn-primary text-white text-xl mr-1">
+                <!-- <button @click="editAlbum" class="btn btn-disabled text-white text-xl mr-1 disabled">
                   <font-awesome-icon :icon="['fas', 'pen']" />
-                </button>
+                </button> -->
                 <button @click="openAddMusicModal" class="btn btn-success text-white text-xl mr-1">
                   <font-awesome-icon :icon="['fas', 'plus']" />
                 </button>
-                <button @click="deleteAlbum" class="btn btn-error text-white text-xl">
+                <button @click="openDeleteModal(album)" class="btn btn-error text-white text-xl">
                   <font-awesome-icon :icon="['fas', 'trash']" />
                 </button>
               </div>
@@ -83,15 +83,14 @@
       </div>
     </section>
     
-    <!-- Adicionar Música Modal -->
-    <AdicionarMusica v-if="isAdding" :albumId="album.id" :data_lanc="album.data_lanc" @musicaAdicionada="handleMusicaAdicionada" @fecharModal="handleCloseAddMusicModal"
-    :artistaId="artistaId" />
-    
+    <AdicionarMusica v-if="isAdding" :albumId="album.id" :data_lanc="album.data_lanc" @musicaAdicionada="handleMusicaAdicionada" @fecharModal="handleCloseAddMusicModal" :artistaId="artistaId" />
+    <ExcluirAlbum v-if="isRemoving && selectedAlbum" :album="selectedAlbum" @fecharModal="closeDeleteModal" @confirmarExclusao="deleteAlbum" />
   </div>
 </template>
 
+
 <script lang="ts">
-import type { Album, Music } from '../../interfaces/apiRef';
+import type { Album, Music } from "../../interfaces/apiRef";
 
 export default {
   data() {
@@ -109,7 +108,8 @@ export default {
       isAdding: false,
       audioPlayer: null as unknown as HTMLAudioElement,
       currentPlayingMusic: null as unknown as Music | null,
-      artistaId: localStorage.getItem("userID")
+      artistaId: localStorage.getItem("userID"),
+      selectedAlbum: null as Album | null,
     };
   },
   async beforeMount() {
@@ -118,10 +118,10 @@ export default {
     await this.fetchAlbum();
     if (process.client) {
       this.audioPlayer = new Audio();
-      this.audioPlayer.addEventListener('error', (e) => {
-        console.error('Erro ao carregar o áudio:', e);
+      this.audioPlayer.addEventListener("error", (e) => {
+        console.error("Erro ao carregar o áudio:", e);
       });
-      this.audioPlayer.addEventListener('loadeddata', () => {
+      this.audioPlayer.addEventListener("loadeddata", () => {
         if (this.audioPlayer) {
           this.audioPlayer.play();
         }
@@ -139,13 +139,18 @@ export default {
       const albumId = this.$route.params.id;
       this.loading = true;
       try {
-        const response = await fetch(`https://starting-music.onrender.com/album/${albumId}`);
+        const response = await fetch(
+          `https://starting-music.onrender.com/album/${albumId}`
+        );
         if (response.ok) {
           const data = await response.json();
           this.album = data.albums;
           this.calculateTotalDuration();
         } else {
-          console.error("Erro ao obter detalhes do álbum:", response.statusText);
+          console.error(
+            "Erro ao obter detalhes do álbum:",
+            response.statusText
+          );
           this.error = true;
           this.errorMessage = "Ocorreu um erro ao obter os detalhes do álbum.";
         }
@@ -157,28 +162,34 @@ export default {
         this.loading = false;
       }
     },
-    async deleteAlbum() {
-      this.showDeleteModal = true;
+    openDeleteModal(album: Album) {
+      console.log('Abrindo modal para o álbum:', album);
+      this.selectedAlbum = album;
+      this.isRemoving = true; 
     },
-    async confirmDelete() {
+    closeDeleteModal() {
+      console.log('Fechando modal.');
+      this.selectedAlbum = null; 
+      this.isRemoving = false;
+    },
+    async deleteAlbum() {
       const albumId = this.$route.params.id;
       try {
-        const response = await fetch(`https://starting-music.onrender.com/album/${albumId}`, {
-          method: "DELETE",
+        const response = await fetch(`https://starting-music.onrender.com/album/delete/${albumId}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `${this.jwtToken}`,
+          },
         });
         if (response.ok) {
-          this.$router.push({ name: 'album-list' });
+          this.$router.push({ name: "album-list" });
         } else {
-          console.error("Erro ao excluir álbum:", response.statusText);
-          this.error = true;
-          this.errorMessage = "Ocorreu um erro ao excluir o álbum.";
+          throw new Error('Erro ao excluir o álbum');
         }
-      } catch (error: any) {
-        console.error("Erro na requisição:", error.message);
+      } catch (error) {
+        console.error('Erro ao excluir o álbum:', error.message);
         this.error = true;
-        this.errorMessage = "Ocorreu um erro ao excluir o álbum.";
-      } finally {
-        this.showDeleteModal = false;
+        this.errorMessage = 'Ocorreu um erro ao excluir o álbum.';
       }
     },
     cancelDelete() {
@@ -186,7 +197,7 @@ export default {
     },
     calculateTotalDuration() {
       this.totalDuration = this.album.musicas.reduce((total, musica) => {
-        const [minutes, seconds] = musica.duracao.split(':').map(Number);
+        const [minutes, seconds] = musica.duracao.split(":").map(Number);
         return total + minutes * 60 + seconds;
       }, 0);
     },
@@ -194,21 +205,38 @@ export default {
       const minutes = Math.floor(durationInSeconds / 60);
       const seconds = durationInSeconds % 60;
       return `${minutes}m ${seconds}s`;
-      
     },
-    playAudio(musica: Music) {
-      if (this.audioPlayer) {
-        if (this.currentPlayingMusic && this.currentPlayingMusic.id === musica.id) {
-          if (this.audioPlayer.paused) {
-            this.audioPlayer.play();
-          } else {
-            this.audioPlayer.pause();
-          }
-        } else {
-          this.audioPlayer.src = musica.url;
-          this.audioPlayer.play();
-          this.currentPlayingMusic = musica;
+    async playAudio(music: Music) {
+      try {
+        if (this.currentPlayingMusic && this.currentPlayingMusic !== music) {
+          this.currentPlayingMusic.isPlaying = false;
+          this.audioPlayer.pause();
+          this.audioPlayer.currentTime = 0; 
         }
+
+        if (!this.currentPlayingMusic || this.currentPlayingMusic !== music) {
+          music.isPlaying = true;
+          this.audioPlayer.src = music.url;
+
+          const playPromise = this.audioPlayer.play();
+          if (playPromise !== undefined) {
+            await playPromise;
+          }
+        } else if (this.currentPlayingMusic && this.currentPlayingMusic === music) {
+          if (music.isPlaying) {
+            music.isPlaying = false;
+            this.audioPlayer.pause();
+          } else {
+            music.isPlaying = true;
+            this.audioPlayer.play();
+          }
+        }
+
+        this.currentPlayingMusic = music;
+      } catch (error) {
+        console.error("Ocorreu um erro ao reproduzir a música:", error.message);
+        this.error = true;
+        this.errorMessage = "Ocorreu um erro ao reproduzir a música.";
       }
     },
     openEditModal(musica: Music) {
@@ -220,7 +248,9 @@ export default {
       this.selectedMusic = null as unknown as Music;
     },
     handleMusicaEditada(musicaEditada: Music) {
-      const index = this.album.musicas.findIndex(musica => musica.id === musicaEditada.id);
+      const index = this.album.musicas.findIndex(
+        (musica) => musica.id === musicaEditada.id
+      );
       if (index !== -1) {
         this.album.musicas.splice(index, 1, musicaEditada);
         this.calculateTotalDuration();
@@ -237,7 +267,9 @@ export default {
     },
     handleConfirmarExclusao() {
       if (this.selectedMusic) {
-        const index = this.album.musicas.findIndex(musica => musica.id === this.selectedMusic!.id);
+        const index = this.album.musicas.findIndex(
+          (musica) => musica.id === this.selectedMusic!.id
+        );
         if (index !== -1) {
           this.album.musicas.splice(index, 1);
           this.calculateTotalDuration();
@@ -247,7 +279,10 @@ export default {
       this.handleCloseExcluirModal();
     },
     editAlbum() {
-      this.$router.push({ name: 'editar-album', params: { id: this.album.id.toString() } });
+      this.$router.push({
+        name: "editar-album",
+        params: { id: this.album.id.toString() },
+      });
     },
     openAddMusicModal() {
       this.isAdding = true;

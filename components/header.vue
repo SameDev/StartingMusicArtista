@@ -4,12 +4,12 @@
             <font-awesome-icon :icon="['fas', icon]" class="mr-2" /> 
             <h2 class="font-nunit font-bold text-3xl mt-1">{{ page }}</h2>
         </div>
-        <div class="flex justify-center items-center p-2 text-2xl">
+        <div class="flex justify-center align-middle items-center p-2 text-2xl ">
             <div class="md:mr-5 text-end">
                 <h2 class="font-bold font-roboto md:text-xl text-sm">{{ userNome }}</h2>
                 <h2 class="font-roboto text-sm font-medium text-accent">{{ userCargo }}</h2>
             </div>
-            <div class="dropdown dropdown-hover dropdown-end 2xl:mr-0 sm:mr-5 mr-10">
+            <div class="dropdown dropdown-hover dropdown-end 2xl:mr-0 sm:mr-5 mr-10 align-middle">
                 <div tabindex="0" role="button" class="avatar mr-2 shadow-2xl">
                     <div class="w-16 rounded-full shadow-2xl">
                         <img :src="getUserImage(userPic)" :alt="userNome+' | Imagem do artista'" />

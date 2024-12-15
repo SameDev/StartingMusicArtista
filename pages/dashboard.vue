@@ -1,13 +1,13 @@
 <template>
   <div class="dashboard overflow-y-auto">
     <Sidebar />
-    <section class="lg:ml-[17%] px-3 py-5">
+    <section class="xl:ml-[17%] px-3 py-5">
       <Header page="Página Principal" icon="house" />
       <div class="flex flex-col flex-wrap md:gap-52 lg:gap-6">
         <div class="top w-full flex md:w-full md:h-[62vh] flex-wrap gap-14">
           <!-- Banner -->
           <div id="banner"
-            class="relative col-span-1 xl:col-span-2 bg-accent rounded-lg shadow-md overflow-hidden w-full lg:w-[70%]">
+            class="relative col-span-1 xl:col-span-2 bg-accent rounded-lg shadow-md overflow-hidden w-full lg:w-[69%]">
             <NuxtImg class="w-full h-full object-cover" src="/banner.png" alt="Banner do sistema" />
             <div class="absolute inset-0 flex items-center justify-center bg-base-300 bg-opacity-70 text-white p-5">
               <div class="text-center">
