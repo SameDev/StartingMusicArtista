@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard overflow-y-auto">
     <Sidebar />
-    <section class="xl:ml-[17%] px-3 py-5">
+    <section class="2xl:ml-[17%] px-3 py-5">
       <Header page="Página Principal" icon="house" />
       <div class="flex flex-col flex-wrap md:gap-52 lg:gap-6">
         <div class="top w-full flex md:w-full md:h-[62vh] flex-wrap gap-14">
