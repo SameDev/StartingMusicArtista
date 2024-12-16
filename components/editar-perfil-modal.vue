@@ -3,25 +3,65 @@
     <div class="container justify-center items-center content-center mx-auto bg-base-200 w-full shadow-lg p-7 m-10 rounded-md font-nunito absolute">
       <h2 class="text-center font-bold text-xl mb-5">Editar Seu Perfil</h2>
       <div class="modal-action">
-        <button @click="fecharModal()" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+        <button @click="fecharModal" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
       </div>
       <form @submit.prevent="editarUser">
+        <div class="mb-4">
+          <label for="nome" class="block text-white font-bold text-sm mb-2 font-roboto-500">
+            <font-awesome-icon :icon="['fas', 'address-card']" /> Nome de Perfil:
+          </label>
+          <input 
+            type="text" 
+            id="nome" 
+            v-model="userNome" 
+            class="input input-bordered text-white bg-accent w-full" 
+            :class="{'input-error': errors.nome}" 
+            placeholder="Digite seu nome"
+          >
+          <span v-if="errors.nome" class="text-error">{{ errors.nome }}</span>
+        </div>
         
         <div class="mb-4">
-          <label for="nome" class="block text-white font-bold text-sm mb-2 font-roboto-500"><font-awesome-icon :icon="['fas', 'address-card']" /> Nome de Perfil:</label>
-          <input type="text" id="nome" v-model="userNome" class="input input-bordered text-white  bg-accent w-full">
+          <label for="email" class="block text-white font-bold text-sm mb-2 font-roboto-500">
+            <font-awesome-icon :icon="['fas', 'at']" /> Email do Perfil:
+          </label>
+          <input 
+            type="email" 
+            id="email" 
+            v-model="userEmail" 
+            class="input input-bordered text-white bg-accent w-full" 
+            :class="{'input-error': errors.email}" 
+            placeholder="Digite seu email"
+          >
+          <span v-if="errors.email" class="text-error">{{ errors.email }}</span>
         </div>
+        
         <div class="mb-4">
-          <label for="email" class="block text-white font-bold text-sm mb-2 font-roboto-500"><font-awesome-icon :icon="['fas', 'at']" /> Email do Perfil:</label>
-          <input type="text" id="email" v-model="userEmail" class="input input-bordered text-white  bg-accent w-full">
+          <label for="data" class="block text-white font-bold text-sm mb-2 font-roboto-500">
+            <font-awesome-icon :icon="['fas', 'calendar']" /> Data de Nascimento:
+          </label>
+          <input 
+            type="date" 
+            id="data" 
+            v-model="userNasc" 
+            class="input input-bordered text-white bg-accent w-full" 
+            :class="{'input-error': errors.data}" 
+          >
+          <span v-if="errors.data" class="text-error">{{ errors.data }}</span>
         </div>
+        
         <div class="mb-4">
-          <label for="data" class="block text-white font-bold text-sm mb-2 font-roboto-500"><font-awesome-icon :icon="['fas', 'calendar']" /> Data de Nascimento:</label>
-          <input type="date" id="data" v-model="userNasc" class="input input-bordered text-white bg-accent w-full">
-        </div>
-        <div class="mb-4">
-          <label for="desc" class="block text-white font-bold text-sm mb-2 font-roboto-500"><font-awesome-icon :icon="['fas', 'user-pen']" /> Descrição do seu perfil:</label>
-          <textarea id="desc" v-model="userDesc" class="textarea textarea-bordered w-full text-white  bg-accent" placeholder="Bio"></textarea>
+          <label for="desc" class="block text-white font-bold text-sm mb-2 font-roboto-500">
+            <font-awesome-icon :icon="['fas', 'user-pen']" /> Descrição do seu perfil:
+          </label>
+          <textarea 
+            id="desc" 
+            v-model="userDesc" 
+            class="textarea textarea-bordered w-full text-white bg-accent" 
+            :class="{'textarea-error': errors.desc}" 
+            placeholder="Adicione uma descrição"
+          ></textarea>
+          <span v-if="errors.desc" class="text-error">{{ errors.desc }}</span>
         </div>
         <div class="mb-4">
           <label for="imageUrl" class="block text-white font-bold text-sm mb-2">Foto de Perfil:</label>
@@ -37,11 +77,18 @@
           <MultiSelect v-model="userTags" :options="allTags" filter optionLabel="name" selectedItemsLabel="{0} tags selecionadas" :maxSelectedLabels="3" class="w-full md:w-20rem input input-bordered bg-accent text-white" />
         </div>
 
-        <button class="btn btn-primary w-full" :class="{'disabled': loadingBtn}" :disabled="loadingBtn">
-          <div v-if="!loadingBtn"><font-awesome-icon :icon="['fas', 'user-pen']" /> Editar Perfil</div>
+
+        <button 
+          class="btn btn-primary w-full" 
+          :class="{'disabled': loadingBtn}" 
+          :disabled="loadingBtn"
+        >
+          <div v-if="!loadingBtn">
+            <font-awesome-icon :icon="['fas', 'user-pen']" /> Editar Perfil
+          </div>
           <div v-else class="loading loading-spinner"></div>
         </button>
-        
+
         <div v-if="success || error" class="divider"></div>
 
         <Success v-if="success" :sucessMessage="successMessage"/>
@@ -58,27 +105,32 @@ import { storage, FireRef, uploadBytes, getDownloadURL } from '~/composables/fir
 
 export default {
   props: {
-    jwtToken: String
+    jwtToken: String,
   },
   data() {
     return {
-      userPic: localStorage.getItem("userPic") || "",
-      userTags: JSON.parse(localStorage.getItem("userTags") || "[]"),
-      userNome: localStorage.getItem("userNome") || "Você não tem nome?",
-      userDesc: localStorage.getItem("userDesc") || "Adicione uma descrição de impacto para seus ouvintes entenderem bem quem você é!",
-      userEmail: localStorage.getItem("userEmail"),
+      userNome: localStorage.getItem('userNome') || '',
+      userEmail: localStorage.getItem('userEmail') || '',
+      userNasc: localStorage.getItem('userNasc') || '' as unknown as Date,
+      userDesc: localStorage.getItem('userDesc') || '',
       userBanner: localStorage.getItem("userBanner") || "",
+      userPic: localStorage.getItem("userPic") || "",
       allTags: [] as Tags[],
-      userCargo: localStorage.getItem("userCargo"),
-      userID: localStorage.getItem("userID") || "",
-      userNasc: localStorage.getItem("userNasc") || "" as unknown as Date,
+      userTags: JSON.parse(localStorage.getItem("userTags") || "[]"),
+      userID: localStorage.getItem('userID') || '',
       success: false,
-      successMessage: "",
-      loadingBtn: false,
+      successMessage: '',
       error: false,
-      errorMessage: "",
+      errorMessage: '',
+      loadingBtn: false,
+      errors: {
+        nome: '',
+        email: '',
+        data: '',
+        desc: '',
+      },
       userSelectedTags: []
-    }
+    };
   },
   beforeMount() {
     this.fetchTags()
@@ -98,9 +150,17 @@ export default {
     } 
   },
   methods: {
-    async editarUser() {
-      this.loadingBtn = true;
+    validateFields() {
+      this.errors = { nome: '', email: '', data: '', desc: '' };
 
+      if (!this.userNome.trim()) this.errors.nome = 'O nome é obrigatório';
+      if (!this.userEmail.trim()) this.errors.email = 'O email é obrigatório';
+
+      return !Object.values(this.errors).some(Boolean);
+    },
+    async editarUser() {
+      if (!this.validateFields()) return;
+      this.loadingBtn = true;
       this.userSelectedTags = (this.userTags || []).map((tag: {
         [x: string]: any; name: any, code: any 
       })  => ({ id: tag.code, nome: tag.name }));
@@ -130,10 +190,10 @@ export default {
 
       try {
         const response = await fetch(`https://starting-music.onrender.com/user/update/${this.userID}`, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
-            "Authorization": this.jwtToken || ""
+            'Content-Type': 'application/json',
+            Authorization: this.jwtToken || '',
           },
           body: JSON.stringify({
             nome: this.userNome,
@@ -149,6 +209,7 @@ export default {
         if (response.ok) {
           this.$emit("perfil-editado");
           this.success = true;
+          this.successMessage = 'Perfil atualizado com sucesso';
           this.error = false;
           this.successMessage = "Perfil editado com Sucesso!"
 
@@ -170,6 +231,8 @@ export default {
         this.error = true;
         this.errorMessage = "Erro diretamente na API!";
         console.error("Erro durante a edição do perfil:", error.message);
+      } finally {
+        this.loadingBtn = false;
       }
     },
 
@@ -245,8 +308,8 @@ export default {
       return new Blob([u8arr], { type: mime });
     },
     fecharModal() {
-      this.$emit("fecharModal")
-    }
-  }
-}
+      this.$emit('closeModal');
+    },
+  },
+};
 </script>
