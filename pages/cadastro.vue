@@ -188,6 +188,16 @@ export default {
       try {
         const imageFile = (event.target as HTMLInputElement).files?.[0];
         if (imageFile) {
+          const MAX_SIZE_MB = 5;
+          const fileSizeMB = imageFile.size / (1024 * 1024);
+          if (fileSizeMB > MAX_SIZE_MB) {
+            this.error = true;
+            this.errorMessage = `A imagem selecionada é muito grande (${fileSizeMB.toFixed(
+              2
+            )}MB). O tamanho máximo permitido é 5MB.`;
+            return;
+          }
+
           const imageReader = new FileReader();
           imageReader.onloadend = () => {
             if (
@@ -207,6 +217,7 @@ export default {
         console.error("Erro durante o upload da imagem:", error.message);
       }
     },
+
     dataURLtoBlob(dataURL: string, type?: string) {
       if (!dataURL.startsWith("data:")) {
         throw new Error("O dataURL fornecido não é válido");
@@ -214,7 +225,7 @@ export default {
       const arr = dataURL.split(",");
       const mimeMatch = arr[0]?.match(/:(.*?);/);
       const mime = type || (mimeMatch ? mimeMatch[1] : "");
-      const bstr = atob(arr[1]); 
+      const bstr = atob(arr[1]);
       let n = bstr.length;
       const u8arr = new Uint8Array(n);
       while (n--) {
@@ -254,14 +265,14 @@ export default {
             cargo: "ARTISTA",
             desc: this.desc,
             tags: this.selectedTags.map((tag) => tag.code),
-            banner: '',
-            foto_perfil: uploadedImageUrl || '', 
+            banner: "",
+            foto_perfil: uploadedImageUrl || "",
           }),
         };
 
         const cadastroResponse = await fetch(api_url, cadastroOptions);
         const cadastroData = await cadastroResponse.json();
-        console.log(cadastroData)
+        console.log(cadastroData);
 
         if (!cadastroResponse.ok) {
           throw new Error(cadastroData);
