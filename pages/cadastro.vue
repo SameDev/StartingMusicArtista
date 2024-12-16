@@ -94,21 +94,6 @@
               @change="handleImageUpload"
             />
           </div>
-          <div class="mb-4">
-            <label
-              for="bannerUrl"
-              class="block text-white font-bold text-sm mb-2"
-              >Imagem do Banner de Perfil:</label
-            >
-            <input
-              type="file"
-              id="bannerUrl"
-              ref="bannerFileInput"
-              class="file-input file-input-bordered w-full bg-accent text-white"
-              accept="image/*"
-              @change="handleBannerUpload"
-            />
-          </div>
           <button
             class="btn btn-lg btn-block btn-primary font-bold rounded-md mt-10 bg-gradient-to-br from-primary to-[#282250]"
             :disabled="envio"
@@ -222,17 +207,6 @@ export default {
         console.error("Erro durante o upload da imagem:", error.message);
       }
     },
-    handleBannerUpload(event: Event) {
-      const bannerFile = (event.target as HTMLInputElement).files?.[0];
-      if (bannerFile) {
-        const bannerReader = new FileReader();
-        bannerReader.onloadend = () => {
-          console.log("Banner URL:", bannerReader.result);
-          this.bannerUrl = bannerReader.result as string;
-        };
-        bannerReader.readAsDataURL(bannerFile);
-      }
-    },
     dataURLtoBlob(dataURL: string, type?: string) {
       if (!dataURL.startsWith("data:")) {
         throw new Error("O dataURL fornecido não é válido");
@@ -254,7 +228,6 @@ export default {
 
       try {
         let uploadedImageUrl = "";
-        let uploadedBannerUrl = "";
 
         if (this.imageUrl) {
           const imageRef = FireRef(
@@ -266,18 +239,6 @@ export default {
             this.dataURLtoBlob(this.imageUrl)
           );
           uploadedImageUrl = await getDownloadURL(imageSnapshot.ref);
-        }
-
-        if (this.bannerUrl) {
-          const bannerRef = FireRef(
-            storage,
-            `banners/${this.nome}-${Date.now()}`
-          );
-          const bannerSnapshot = await uploadBytes(
-            bannerRef,
-            this.dataURLtoBlob(this.bannerUrl)
-          );
-          uploadedBannerUrl = await getDownloadURL(bannerSnapshot.ref);
         }
 
         const cadastroOptions = {
@@ -293,7 +254,7 @@ export default {
             cargo: "ARTISTA",
             desc: this.desc,
             tags: this.selectedTags.map((tag) => tag.code),
-            banner: uploadedBannerUrl || '',
+            banner: '',
             foto_perfil: uploadedImageUrl || '', 
           }),
         };
